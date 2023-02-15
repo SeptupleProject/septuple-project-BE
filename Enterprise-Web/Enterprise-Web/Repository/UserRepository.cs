@@ -4,6 +4,7 @@ using Enterprise_Web.Repository.IRepository;
 using EnterpriseWeb.Data;
 using EnterpriseWeb.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Diagnostics.Metrics;
 
 namespace Enterprise_Web.Repository
 {
@@ -17,7 +18,7 @@ namespace Enterprise_Web.Repository
 
         public (List<UserDTO>, PaginationFilter, int) GetAll(PaginationFilter filter)
         {
-            var validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize, filter.Search);
+            var validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize, filter.Search, filter.Role);
 
             var listUser = (from u in _dbContext.Users select 
                             new UserDTO
@@ -37,9 +38,43 @@ namespace Enterprise_Web.Repository
             return (listUser,validFilter,countUser);
         }
 
+        public (List<UserDTO>, PaginationFilter, int) GetUser(PaginationFilter filter)
+        {
+            var validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize, filter.Search, filter.Role);
+
+            var countUser = 0;
+            
+            if(!String.IsNullOrEmpty(filter.Role) && !String.IsNullOrEmpty(filter.Search))
+            {
+                var filterUser = (from u in _dbContext.Users where u.Email.Contains(filter.Search) && u.Role.Contains(filter.Role)
+                                select new UserDTO
+                                {
+                                    Id = u.Id,
+                                    Email = u.Email,
+                                    Role = u.Role,
+                                    DepartmentName = u.Department.Name == null ? "" : u.Department.Name
+                                }).ToList();
+                return (filterUser, validFilter, countUser);
+            }
+
+            var listUser = (from u in _dbContext.Users
+                            select new UserDTO
+                            {
+                                Id = u.Id,
+                                Email = u.Email,
+                                Role = u.Email,
+                                DepartmentName = u.Department.Name == null ? "" : u.Department.Name
+                            }).ToList();
+            return (listUser, validFilter, countUser);
+        }
+
         public async Task<User> GetUserById(int id)
         {
             var findUser = await _dbContext.Users.FindAsync(id);
+            if(findUser == null)
+            {
+                return null;
+            }
             return findUser;
         }
 

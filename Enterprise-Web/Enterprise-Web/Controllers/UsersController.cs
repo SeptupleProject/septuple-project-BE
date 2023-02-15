@@ -34,13 +34,22 @@ namespace Enterprise_Web.Controllers
             return Ok(pagedResponse);
         }
 
+        [HttpGet("list")]
+        public async Task<IActionResult> GetUser([FromQuery] PaginationFilter filter)
+        {
+            var route = Request.Path.Value;
+            var listUser = _userRepository.GetUser(filter);
+            var pagedResponse = PaginationHelper.CreatePagedReponse<UserDTO>(listUser.Item1, listUser.Item2, listUser.Item3, _uriService, route);
+            return Ok(pagedResponse);
+        }
+
         [HttpGet("{id}")]
         public async Task<IActionResult> GetUserDetail(int id)
         {
             var user = await _userRepository.GetUserById(id);
             if(user == null)
             {
-                return NotFound();
+                return StatusCode(400, "User does not exist");
             }
             return Ok(user);
         }
@@ -85,7 +94,7 @@ namespace Enterprise_Web.Controllers
             var user = _userRepository.GetUserById(id);
             if(user == null)
             {
-                return NotFound();
+                return StatusCode(400, "User does not exist");
             }
             await _userRepository.Delete(id);
             return Ok();
