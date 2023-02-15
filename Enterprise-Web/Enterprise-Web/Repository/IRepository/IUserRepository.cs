@@ -8,6 +8,7 @@ namespace Enterprise_Web.Repository.IRepository
     public interface IUserRepository
     {
         (List<UserDTO>, PaginationFilter, int) GetAll(PaginationFilter filter);
+        (List<UserDTO>, PaginationFilter, int) GetUser(PaginationFilter filter);
         Task<User> GetUserById(int id);
         Task Create(User user);
         Task Update(User user);
