@@ -46,7 +46,7 @@ namespace Enterprise_Web.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetUserDetail(int id)
         {
-            var user = await _userRepository.GetUserById(id);
+            var user = _userRepository.GetUserById(id);
             if(user == null)
             {
                 return StatusCode(400, "User does not exist");
@@ -78,7 +78,7 @@ namespace Enterprise_Web.Controllers
         {
             if(id != user.Id)
             {
-                return BadRequest();
+                return BadRequest("User Not found");
             }
             await _userRepository.Update(user);
             return Ok();

@@ -33,6 +33,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<ApplicationDbContext>(x => x.UseSqlServer(connectionString));
 builder.Services.AddTransient<IUserRepository, UserRepository>();
 builder.Services.AddTransient<IDepartmentRepository, DepartmentRepository>();
+builder.Services.AddTransient<IAcademicYearRepository, AcademicYearRepository>();
 
 var app = builder.Build();
 

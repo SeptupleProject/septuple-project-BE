@@ -55,7 +55,7 @@ namespace Enterprise_Web.Repository
 
         public (List<DepartmentDTO>, PaginationFilter, int) GetAll(PaginationFilter filter)
         {
-            var validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize, filter.Search);
+            var validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize, filter.Search, filter.Role);
 
             var listDepts = (from d in _dbContext.Departments
                             select
@@ -64,7 +64,7 @@ namespace Enterprise_Web.Repository
                                 Id = d.Id,
                                 Name = d.Name,
                                 Users = d.Users.Count,
-                                ManagedBy = d.Users.SingleOrDefault(u => u.Role == "QACoordinator").Email == null ? "": d.Users.SingleOrDefault(u => u.Role == "QACoordinator").Email
+                                ManagedBy = d.Users.SingleOrDefault(u => u.Role == "QAC").Email == null ? "": d.Users.SingleOrDefault(u => u.Role == "QACoordinator").Email
                             })
                            .OrderByDescending(d => d.Id)
                            .Skip((validFilter.PageNumber - 1) * validFilter.PageSize)
@@ -76,7 +76,7 @@ namespace Enterprise_Web.Repository
             return (listDepts, validFilter, countDepts);
         }
 
-        public async Task <Department?> GetDeptById(int id)
+        public Department GetDeptById(int id)
         {
             var department = _dbContext.Departments.Include(x => x.Users).Where(x => x.Id == id).FirstOrDefault();
             if (department == null)

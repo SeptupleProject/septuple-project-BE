@@ -85,7 +85,7 @@ namespace Enterprise_Web.Controllers
         {
             if (id != department.Id)
             {
-                return BadRequest();
+                return BadRequest("Department not found");
             }
 
             if (_departmentRepository.CheckNameExist(department))
