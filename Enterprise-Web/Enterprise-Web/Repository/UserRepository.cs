@@ -68,9 +68,9 @@ namespace Enterprise_Web.Repository
             return (listUser, validFilter, countUser);
         }
 
-        public async Task<User> GetUserById(int id)
+        public User GetUserById(int id)
         {
-            var findUser = await _dbContext.Users.FindAsync(id);
+            var findUser = _dbContext.Users.Find(id);
             if(findUser == null)
             {
                 return null;
@@ -110,7 +110,7 @@ namespace Enterprise_Web.Repository
 
         public bool CheckEmailExist(User user)
         {
-            var findEmail = _dbContext.Users.FirstOrDefault(u => u.Email == user.Email);
+            var findEmail = _dbContext.Users.FirstOrDefault(u => u.Email == user.Email && u.Id != user.Id);
             if (findEmail == null)
             {
                 return false;
