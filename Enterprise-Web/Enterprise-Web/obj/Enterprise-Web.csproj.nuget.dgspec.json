@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Admin\\source\\repos\\septuple-project-BE\\Enterprise-Web\\Enterprise-Web\\Enterprise-Web.csproj": {}
+    "C:\\Users\\minht\\source\\repos\\septuple-project-BE\\Enterprise-Web\\Enterprise-Web\\Enterprise-Web.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Admin\\source\\repos\\septuple-project-BE\\Enterprise-Web\\Enterprise-Web\\Enterprise-Web.csproj": {
+    "C:\\Users\\minht\\source\\repos\\septuple-project-BE\\Enterprise-Web\\Enterprise-Web\\Enterprise-Web.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Admin\\source\\repos\\septuple-project-BE\\Enterprise-Web\\Enterprise-Web\\Enterprise-Web.csproj",
+        "projectUniqueName": "C:\\Users\\minht\\source\\repos\\septuple-project-BE\\Enterprise-Web\\Enterprise-Web\\Enterprise-Web.csproj",
         "projectName": "Enterprise-Web",
-        "projectPath": "C:\\Users\\Admin\\source\\repos\\septuple-project-BE\\Enterprise-Web\\Enterprise-Web\\Enterprise-Web.csproj",
-        "packagesPath": "C:\\Users\\Admin\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Admin\\source\\repos\\septuple-project-BE\\Enterprise-Web\\Enterprise-Web\\obj\\",
+        "projectPath": "C:\\Users\\minht\\source\\repos\\septuple-project-BE\\Enterprise-Web\\Enterprise-Web\\Enterprise-Web.csproj",
+        "packagesPath": "C:\\Users\\minht\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\minht\\source\\repos\\septuple-project-BE\\Enterprise-Web\\Enterprise-Web\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\Admin\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\minht\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -40,6 +40,34 @@
         "net6.0": {
           "targetAlias": "net6.0",
           "dependencies": {
+            "BCrypt.Net-Next": {
+              "target": "Package",
+              "version": "[4.0.3, )"
+            },
+            "Microsoft.AspNetCore.WebUtilities": {
+              "target": "Package",
+              "version": "[2.2.0, )"
+            },
+            "Microsoft.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[7.0.2, )"
+            },
+            "Microsoft.EntityFrameworkCore.Design": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[7.0.2, )"
+            },
+            "Microsoft.EntityFrameworkCore.SqlServer": {
+              "target": "Package",
+              "version": "[7.0.2, )"
+            },
+            "Microsoft.EntityFrameworkCore.Tools": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[7.0.2, )"
+            },
             "Swashbuckle.AspNetCore": {
               "target": "Package",
               "version": "[6.2.3, )"
@@ -64,7 +92,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.401\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.406\\RuntimeIdentifierGraph.json"
         }
       }
     }

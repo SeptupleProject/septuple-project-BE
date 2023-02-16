@@ -1,4 +1,5 @@
-﻿using EnterpriseWeb.Configuration;
+﻿using Enterprise_Web.Models;
+using EnterpriseWeb.Configuration;
 using EnterpriseWeb.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,5 +18,6 @@ namespace EnterpriseWeb.Data
 
         public DbSet<Department> Departments { get; set; }
         public DbSet<User> Users { get; set; }
+        public DbSet<Idea> Ideas { get; set; }
     }
 }
