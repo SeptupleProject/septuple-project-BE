@@ -1,16 +1,17 @@
 ﻿using Enterprise_Web.DTOs;
 using Enterprise_Web.Pagination.Filter;
+using Enterprise_Web.Repository.IRepository;
 using EnterpriseWeb.Data;
 
-namespace Enterprise_Web.Repository.IRepository;
+namespace Enterprise_Web.Repository;
 
 public class IdeaRepository : IIdeaRepository
 {
-    private ApplicationDbContext _context; 
-    
+    private ApplicationDbContext _context;
+
     public IdeaRepository(ApplicationDbContext context)
     {
-        _context = context; 
+        _context = context;
     }
     public (List<IdeaDTO>, PaginationFilter, int) GetAll(PaginationFilter filter)
     {
@@ -21,7 +22,7 @@ public class IdeaRepository : IIdeaRepository
     {
         throw new NotImplementedException();
     }
-
+    // this is create for new Idea
     public Task Add(IdeaDTO model)
     {
         throw new NotImplementedException();

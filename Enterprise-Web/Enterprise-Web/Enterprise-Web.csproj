@@ -29,7 +29,6 @@
     <Folder Include="Models\" />
     <Folder Include="Middleware\" />
     <Folder Include="Utils\" />
-    <Folder Include="Repository\" />
   </ItemGroup>
 
 </Project>
