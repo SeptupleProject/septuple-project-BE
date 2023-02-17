@@ -1,26 +1,35 @@
 ﻿using Enterprise_Web.DTOs;
 using Enterprise_Web.Pagination.Filter;
 using Enterprise_Web.Repository.IRepository;
+using Enterprise_Web.ViewModels;
 using EnterpriseWeb.Data;
 using EnterpriseWeb.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using System.Diagnostics.Metrics;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 
 namespace Enterprise_Web.Repository
 {
     public class UserRepository : IUserRepository
     {
         private readonly ApplicationDbContext _dbContext;
-        public UserRepository(ApplicationDbContext dbContext)
+        private readonly IConfiguration _configuration;
+
+        public UserRepository(ApplicationDbContext dbContext, IConfiguration configuration)
         {
             _dbContext = dbContext;
+            _configuration = configuration;
         }
 
         public (List<UserDTO>, PaginationFilter, int) GetAll(PaginationFilter filter)
         {
             var validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize, filter.Search, filter.Role);
 
-            var listUser = (from u in _dbContext.Users select 
+            var listUser = (from u in _dbContext.Users
+                            select
                             new UserDTO
                             {
                                 Id = u.Id,
@@ -35,7 +44,7 @@ namespace Enterprise_Web.Repository
 
             var countUser = (from u in _dbContext.Users select u).Count();
 
-            return (listUser,validFilter,countUser);
+            return (listUser, validFilter, countUser);
         }
 
         public (List<UserDTO>, PaginationFilter, int) GetUser(PaginationFilter filter)
@@ -43,17 +52,18 @@ namespace Enterprise_Web.Repository
             var validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize, filter.Search, filter.Role);
 
             var countUser = 0;
-            
-            if(!String.IsNullOrEmpty(filter.Role) && !String.IsNullOrEmpty(filter.Search))
+
+            if (!String.IsNullOrEmpty(filter.Role) && !String.IsNullOrEmpty(filter.Search))
             {
-                var filterUser = (from u in _dbContext.Users where u.Email.Contains(filter.Search) && u.Role.Contains(filter.Role)
-                                select new UserDTO
-                                {
-                                    Id = u.Id,
-                                    Email = u.Email,
-                                    Role = u.Role,
-                                    DepartmentName = u.Department.Name == null ? "" : u.Department.Name
-                                }).ToList();
+                var filterUser = (from u in _dbContext.Users
+                                  where u.Email.Contains(filter.Search) && u.Role.Contains(filter.Role)
+                                  select new UserDTO
+                                  {
+                                      Id = u.Id,
+                                      Email = u.Email,
+                                      Role = u.Role,
+                                      DepartmentName = u.Department.Name == null ? "" : u.Department.Name
+                                  }).ToList();
                 return (filterUser, validFilter, countUser);
             }
 
@@ -71,7 +81,7 @@ namespace Enterprise_Web.Repository
         public User GetUserById(int id)
         {
             var findUser = _dbContext.Users.Find(id);
-            if(findUser == null)
+            if (findUser == null)
             {
                 return null;
             }
@@ -93,7 +103,7 @@ namespace Enterprise_Web.Repository
         public async Task Update(User user)
         {
             var findUser = await _dbContext.Users.FirstOrDefaultAsync(x => x.Id == user.Id);
-            if(findUser != null)
+            if (findUser != null)
             {
                 findUser.Role = user.Role;
             }
@@ -116,6 +126,45 @@ namespace Enterprise_Web.Repository
                 return false;
             }
             return true;
+        }
+
+        public string Authenticate(UserViewModel userViewModel)
+        {
+            var loginResult = _dbContext.Users.Where(u => u.Email == userViewModel.Email).FirstOrDefault();
+            if (loginResult != null)
+            {
+                var isCheckPwd = BCrypt.Net.BCrypt.Verify(userViewModel.Password, loginResult.Password);
+                if (isCheckPwd)
+                {
+                    var accessToken = GenerateAccessToken(loginResult);
+                    return accessToken;
+                }
+                return null;
+            }
+            return null;
+        }
+
+        private string GenerateAccessToken(User user)
+        {
+            var claims = new[]
+            {
+                new Claim(JwtRegisteredClaimNames.Sub, _configuration["Jwt:Subject"]),
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim("Id", user.Id.ToString()),
+                new Claim(ClaimTypes.Role, user.Role)
+            };
+
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
+            var login = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+            var token = new JwtSecurityToken(
+                _configuration["Jwt:Issuer"],
+                _configuration["Jwt:Audience"],
+                claims,
+                expires: DateTime.UtcNow.AddHours(1),
+                signingCredentials: login);
+
+            string Token = new JwtSecurityTokenHandler().WriteToken(token);
+            return Token;
         }
     }
 }

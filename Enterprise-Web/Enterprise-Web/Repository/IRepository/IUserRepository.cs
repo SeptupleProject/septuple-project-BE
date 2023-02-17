@@ -1,5 +1,6 @@
 ﻿using Enterprise_Web.DTOs;
 using Enterprise_Web.Pagination.Filter;
+using Enterprise_Web.ViewModels;
 using EnterpriseWeb.Models;
 
 
@@ -14,5 +15,6 @@ namespace Enterprise_Web.Repository.IRepository
         Task Update(User user);
         Task Delete(int id);
         bool CheckEmailExist(User user);
+        string Authenticate(UserViewModel userViewModel);
     }
 }
