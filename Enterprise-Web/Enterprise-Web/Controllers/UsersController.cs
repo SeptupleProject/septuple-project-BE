@@ -7,9 +7,11 @@ using EnterpriseWeb.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace Enterprise_Web.Controllers
 {
+    [Authorize(Roles ="Admin,QAC")]
     [Route("api/[controller]")]
     [ApiController]
     public class UsersController : ControllerBase
@@ -28,8 +30,11 @@ namespace Enterprise_Web.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllUser([FromQuery] PaginationFilter filter)
         {
+            var claimIdentity = (ClaimsIdentity)User.Identity;
+            var claim = claimIdentity.FindFirst(ClaimTypes.NameIdentifier);
+            var userId = claim.Subject.Claims.ToList()[2];
             var route = Request.Path.Value;
-            var listUser = _userRepository.GetAll(filter);
+            var listUser = _userRepository.GetAll(filter, Int32.Parse(userId.Value));
             var pagedResponse = PaginationHelper.CreatePagedReponse<UserDTO>(listUser.Item1, listUser.Item2, listUser.Item3, _uriService, route);
             return Ok(pagedResponse);
         }
@@ -82,6 +87,17 @@ namespace Enterprise_Web.Controllers
             }
             await _userRepository.Update(user);
             return Ok();
+        }
+
+        [HttpPatch("{id}")]
+        public async Task<IActionResult> ResetUserPwd(int id, string newPwd)
+        {
+            var updatedPwd = await _userRepository.ResetPassword(id, newPwd);
+            if (updatedPwd == null)
+            {
+                return NotFound("Not found user");
+            }
+            return Ok(updatedPwd);
         }
 
         #endregion

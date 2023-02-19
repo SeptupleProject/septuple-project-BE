@@ -5,11 +5,13 @@ using Enterprise_Web.Pagination.Service;
 using Enterprise_Web.Repository;
 using Enterprise_Web.Repository.IRepository;
 using EnterpriseWeb.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Enterprise_Web.Controllers
 {
+    //[Authorize(Roles = "QAM")]
     [Route("api/[controller]")]
     [ApiController]
     public class DepartmentsController : ControllerBase
