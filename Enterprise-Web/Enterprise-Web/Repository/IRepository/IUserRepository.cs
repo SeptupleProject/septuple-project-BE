@@ -8,7 +8,7 @@ namespace Enterprise_Web.Repository.IRepository
 {
     public interface IUserRepository
     {
-        (List<UserDTO>, PaginationFilter, int) GetAll(PaginationFilter filter);
+        (List<UserDTO>, PaginationFilter, int) GetAll(PaginationFilter filter, int userId);
         (List<UserDTO>, PaginationFilter, int) GetUser(PaginationFilter filter);
         User GetUserById(int id);
         Task Create(User user);
@@ -16,5 +16,6 @@ namespace Enterprise_Web.Repository.IRepository
         Task Delete(int id);
         bool CheckEmailExist(User user);
         string Authenticate(UserViewModel userViewModel);
+        Task<string> ResetPassword(int id, string newPwd);
     }
 }
