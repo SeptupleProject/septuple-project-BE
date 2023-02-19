@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EnterpriseWeb.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20230214164635_AddCategoryModel")]
-    partial class AddCategoryModel
+    [Migration("20230217164743_addIdeaModel")]
+    partial class addIdeaModel
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -37,7 +37,8 @@ namespace EnterpriseWeb.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -107,6 +108,86 @@ namespace EnterpriseWeb.Migrations
                     b.ToTable("Users", (string)null);
                 });
 
+            modelBuilder.Entity("Enterprise_Web.Models.AcademicYear", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime?>("EndDate")
+                        .IsRequired()
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("IdeaDeadline")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("StartDate")
+                        .IsRequired()
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("AcademicYears", (string)null);
+                });
+
+            modelBuilder.Entity("Enterprise_Web.Models.Idea", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AcademicYearId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Image")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<bool>("IsAnonymos")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("Views")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AcademicYearId");
+
+                    b.HasIndex("CategoryId");
+
+                    b.ToTable("Ideas", (string)null);
+                });
+
             modelBuilder.Entity("EnterpriseWeb.Models.User", b =>
                 {
                     b.HasOne("EnterpriseWeb.Models.Department", "Department")
@@ -117,9 +198,38 @@ namespace EnterpriseWeb.Migrations
                     b.Navigation("Department");
                 });
 
+            modelBuilder.Entity("Enterprise_Web.Models.Idea", b =>
+                {
+                    b.HasOne("Enterprise_Web.Models.AcademicYear", "AcademicYear")
+                        .WithMany("Ideas")
+                        .HasForeignKey("AcademicYearId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("EnterpriseWeb.Models.Category", "Category")
+                        .WithMany("Ideas")
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AcademicYear");
+
+                    b.Navigation("Category");
+                });
+
+            modelBuilder.Entity("EnterpriseWeb.Models.Category", b =>
+                {
+                    b.Navigation("Ideas");
+                });
+
             modelBuilder.Entity("EnterpriseWeb.Models.Department", b =>
                 {
                     b.Navigation("Users");
+                });
+
+            modelBuilder.Entity("Enterprise_Web.Models.AcademicYear", b =>
+                {
+                    b.Navigation("Ideas");
                 });
 #pragma warning restore 612, 618
         }

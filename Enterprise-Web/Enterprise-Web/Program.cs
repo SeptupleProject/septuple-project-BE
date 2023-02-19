@@ -61,6 +61,7 @@ builder.Services.AddTransient<IUserRepository, UserRepository>();
 builder.Services.AddTransient<IDepartmentRepository, DepartmentRepository>();
 builder.Services.AddTransient<IAcademicYearRepository, AcademicYearRepository>();
 builder.Services.AddTransient<ICategoryRepository, CategoryRepository>();
+builder.Services.AddTransient<IIdeaRepository, IdeaRepository>();
 
 var app = builder.Build();
 
