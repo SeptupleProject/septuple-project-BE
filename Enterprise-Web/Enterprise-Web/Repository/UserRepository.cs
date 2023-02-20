@@ -24,9 +24,31 @@ namespace Enterprise_Web.Repository
             _configuration = configuration;
         }
 
-        public (List<UserDTO>, PaginationFilter, int) GetAll(PaginationFilter filter)
+        public (List<UserDTO>, PaginationFilter, int) GetAll(PaginationFilter filter, int userId)
         {
+            var findUser = _dbContext.Users.Include(x => x.Department).FirstOrDefault(x => x.Id == userId);
             var validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize, filter.Search, filter.Role);
+
+            if(findUser.Role == "QAC")
+            {
+                var listUserQAC = (from u in _dbContext.Users where u.Department.Id == findUser.Department.Id
+                                select
+                                new UserDTO
+                                {
+                                    Id = u.Id,
+                                    Email = u.Email,
+                                    Role = u.Role,
+                                    DepartmentName = u.Department.Name == null ? "" : u.Department.Name
+                                })
+                           .OrderByDescending(x => x.Id)
+                           .Skip((validFilter.PageNumber - 1) * validFilter.PageSize)
+                           .Take(validFilter.PageSize)
+                           .ToList();
+
+                var countUserQAC = (from u in _dbContext.Users where u.Department.Id == findUser.Department.Id select u).Count();
+
+                return (listUserQAC, validFilter, countUserQAC);
+            }
 
             var listUser = (from u in _dbContext.Users
                             select
@@ -111,6 +133,19 @@ namespace Enterprise_Web.Repository
             await _dbContext.SaveChangesAsync();
         }
 
+        public async Task<string> ResetPassword(int id, string newPwd)
+        {
+            var user = await _dbContext.Users.FirstOrDefaultAsync(x => x.Id == id);
+            if (user != null)
+            {
+                user.Password = BCrypt.Net.BCrypt.HashPassword(newPwd);
+                _dbContext.Update(user);
+                await _dbContext.SaveChangesAsync();
+                return user.Password;
+            }
+            else return null;
+        }
+
         public async Task Delete(int id)
         {
             var findUser = await _dbContext.Users.FindAsync(id);
@@ -160,7 +195,7 @@ namespace Enterprise_Web.Repository
                 _configuration["Jwt:Issuer"],
                 _configuration["Jwt:Audience"],
                 claims,
-                expires: DateTime.UtcNow.AddHours(1),
+                expires: DateTime.UtcNow.AddDays(1),
                 signingCredentials: login);
 
             string Token = new JwtSecurityTokenHandler().WriteToken(token);

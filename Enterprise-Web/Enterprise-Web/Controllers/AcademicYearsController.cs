@@ -6,11 +6,14 @@ using Enterprise_Web.Pagination.Service;
 using Enterprise_Web.Repository;
 using Enterprise_Web.Repository.IRepository;
 using EnterpriseWeb.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace Enterprise_Web.Controllers
 {
+    //[Authorize(Roles ="Admin,QAM")]
     [Route("api/[controller]")]
     [ApiController]
     public class AcademicYearsController : ControllerBase

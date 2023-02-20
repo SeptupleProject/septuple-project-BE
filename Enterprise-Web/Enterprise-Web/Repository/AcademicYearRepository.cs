@@ -73,11 +73,12 @@ namespace Enterprise_Web.Repository
         {
             var findAcade = await _dbContext.AcademicYears.FirstOrDefaultAsync(x => x.Id == academicYear.Id);
 
-            if(findAcade != null)
+            if (findAcade != null)
             {
                 findAcade.Name = academicYear.Name;
                 findAcade.StartDate = academicYear.StartDate;
                 findAcade.EndDate = academicYear.EndDate;
+                findAcade.IdeaDeadline = academicYear.IdeaDeadline;
             }
             _dbContext.Update(findAcade);
             await _dbContext.SaveChangesAsync();
