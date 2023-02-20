@@ -49,6 +49,7 @@ namespace Enterprise_Web.Repository
 
                 return (listUserQAC, validFilter, countUserQAC);
             }
+
             var listUser = (from u in _dbContext.Users
                             select
                             new UserDTO

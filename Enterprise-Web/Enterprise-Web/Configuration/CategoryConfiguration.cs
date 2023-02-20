@@ -14,6 +14,7 @@ namespace Enterprise_Web.Configuration
       builder.Property(x => x.Name).IsRequired(true).HasMaxLength(100);
       builder.Property(x => x.CreatedBy).IsRequired(false).HasMaxLength(50);
       builder.Property(x => x.CreatedAt).IsRequired(true);
+      
     }
   }
 }

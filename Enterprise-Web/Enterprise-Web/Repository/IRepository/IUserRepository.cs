@@ -3,7 +3,6 @@ using Enterprise_Web.Pagination.Filter;
 using Enterprise_Web.ViewModels;
 using EnterpriseWeb.Models;
 
-
 namespace Enterprise_Web.Repository.IRepository
 {
     public interface IUserRepository

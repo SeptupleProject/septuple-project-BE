@@ -15,13 +15,15 @@ namespace EnterpriseWeb.Data
         {
             modelBuilder.ApplyConfiguration(new DepartmentConfiguration());
             modelBuilder.ApplyConfiguration(new UserConfiguration());
-      modelBuilder.ApplyConfiguration(new AcademicYearConfiguration());
+            modelBuilder.ApplyConfiguration(new AcademicYearConfiguration());
             modelBuilder.ApplyConfiguration(new CategoryConfiguration());
+            modelBuilder.ApplyConfiguration(new IdeaConfiguration());
         }
 
         public DbSet<Department> Departments { get; set; }
         public DbSet<User> Users { get; set; }
-      public DbSet<Category> Categories { get; set; }
+        public DbSet<Category> Categories { get; set; }
         public DbSet<AcademicYear> AcademicYears { get; set; }
+        public DbSet<Idea> Ideas { get; set; }
     }
 }

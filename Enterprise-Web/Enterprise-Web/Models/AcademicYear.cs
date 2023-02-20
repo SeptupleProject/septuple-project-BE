@@ -7,5 +7,6 @@
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
         public DateTime? IdeaDeadline { get; set; }
+        public ICollection<Idea>? Ideas { get; set; }
     }
 }
