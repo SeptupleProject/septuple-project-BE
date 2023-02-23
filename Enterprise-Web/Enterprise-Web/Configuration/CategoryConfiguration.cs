@@ -8,7 +8,7 @@ namespace Enterprise_Web.Configuration
   {
     public void Configure(EntityTypeBuilder<Category> builder)
     {
-      builder.ToTable("Category");
+      builder.ToTable("Categories");
       builder.HasKey(x => x.Id);
       builder.Property(x => x.Id).UseIdentityColumn();
       builder.Property(x => x.Name).IsRequired(true).HasMaxLength(100);
