@@ -148,8 +148,7 @@ namespace Enterprise_Web.Repository
                 Id = department.Id,
                 Name = department.Name,
                 Users = newUser,
-                CreatedBy = department.CreatedBy,
-                CreatedAt = department.CreatedAt
+                CreatedAt = DateTime.Now,
             };
             _dbContext.ChangeTracker.Clear();
             _dbContext.Entry(newDepartment).State = EntityState.Modified;

@@ -11,7 +11,7 @@ using System.Security.Claims;
 
 namespace Enterprise_Web.Controllers
 {
-    [Authorize(Roles ="Admin,QAC")]
+    //[Authorize(Roles ="Admin,QAC")]
     [Route("api/[controller]")]
     [ApiController]
     public class UsersController : ControllerBase
