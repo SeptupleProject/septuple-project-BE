@@ -3,12 +3,19 @@ using Enterprise_Web.Models;
 using Enterprise_Web.Pagination.Filter;
 using Enterprise_Web.Repository.IRepository;
 using EnterpriseWeb.Data;
+using Firebase.Auth;
+using Firebase.Storage;
 using Microsoft.EntityFrameworkCore;
 
 namespace Enterprise_Web.Repository
 {
     public class IdeaRepository : IIdeaRepository
     {
+        private static string apiKey = "AIzaSyD1EOiY1Q7dfMLPtTg_RXLpW0HmlyCpQmo";
+        private static string Bucket = "enterprise-web-c3a66.appspot.com";
+        private static string AuthEmail = "dinhgiabao@gmail.com";
+        private static string AuthPassword = "app123";
+
         private readonly ApplicationDbContext _dbContext;
 
         public IdeaRepository(ApplicationDbContext dbContext)
@@ -49,12 +56,45 @@ namespace Enterprise_Web.Repository
 
         public async Task Create(Idea idea)
         {
+            var fileUpload = idea.File;
+            var name = fileUpload.FileName;
+            var stream = fileUpload.OpenReadStream();
+            string image = "";
+            if (fileUpload.Length > 0)
+            {
+                var auth = new FirebaseAuthProvider(new FirebaseConfig(apiKey));
+                var a = await auth.SignInWithEmailAndPasswordAsync(AuthEmail, AuthPassword);
+
+                var cancel = new CancellationTokenSource();
+
+                var task = new FirebaseStorage(
+                    Bucket,
+                    new FirebaseStorageOptions
+                    {
+                        AuthTokenAsyncFactory = () => Task.FromResult(a.FirebaseToken),
+                        ThrowOnCancel = true
+                    })
+                    .Child("images")
+                    .Child(name)
+                    .PutAsync(stream, cancel.Token);
+
+                try
+                {
+                    var link = await task;
+                    image = link;
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine($"Error:{e.Message}");
+                }
+            }
+
             var newIdea = new Idea()
             {
                 Title = idea.Title,
                 Content = idea.Content,
                 Views = idea.Views,
-                Image = idea.Image,
+                Image = image,
                 IsAnonymos = idea.IsAnonymos,
                 AcademicYearId = idea.AcademicYearId,
                 CategoryId = idea.CategoryId,
@@ -69,18 +109,47 @@ namespace Enterprise_Web.Repository
 
         public async Task Update(Idea idea)
         {
+            var fileUpload = idea.File;
+            var name = fileUpload.FileName;
+            var stream = fileUpload.OpenReadStream();
+            string image = "";
+            if (fileUpload.Length > 0)
+            {
+                var auth = new FirebaseAuthProvider(new FirebaseConfig(apiKey));
+                var a = await auth.SignInWithEmailAndPasswordAsync(AuthEmail, AuthPassword);
+
+                var cancel = new CancellationTokenSource();
+
+                var task = new FirebaseStorage(
+                    Bucket,
+                    new FirebaseStorageOptions
+                    {
+                        AuthTokenAsyncFactory = () => Task.FromResult(a.FirebaseToken),
+                        ThrowOnCancel = true
+                    })
+                    .Child("images")
+                    .Child(name)
+                    .PutAsync(stream, cancel.Token);
+
+                try
+                {
+                    var link = await task;
+                    image = link;
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine($"Error:{e.Message}");
+                }
+            }
+
             var findIdeas = await _dbContext.Ideas.FirstOrDefaultAsync(x => x.Id == idea.Id);
             if (findIdeas != null)
             {
                 findIdeas.Title = idea.Title;
                 findIdeas.Content = idea.Content;
-                findIdeas.Views = idea.Views;
-                findIdeas.Image = idea.Image;
+                findIdeas.Image = image;
                 findIdeas.IsAnonymos = idea.IsAnonymos;
-                findIdeas.AcademicYearId = idea.AcademicYearId;
                 findIdeas.CategoryId = idea.CategoryId;
-                findIdeas.CreatedBy = idea.CreatedBy;
-                findIdeas.CreatedAt = idea.CreatedAt;
             }
             _dbContext.Update(findIdeas);
             await _dbContext.SaveChangesAsync();
@@ -90,7 +159,7 @@ namespace Enterprise_Web.Repository
         {
             var ideaDelete = await _dbContext.Ideas.FindAsync(id);
             _dbContext.Remove(ideaDelete);
-             await _dbContext.SaveChangesAsync();
+            await _dbContext.SaveChangesAsync();
         }
     }
 }

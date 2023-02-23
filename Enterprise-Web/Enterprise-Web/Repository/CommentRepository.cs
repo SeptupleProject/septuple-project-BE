@@ -52,10 +52,10 @@ namespace Enterprise_Web.Repository
       {
         Content = comment.Content,
         IsAnonymous = comment.IsAnonymous,
-        CreatedBy = comment.CreatedBy,
-        CreatedAt = comment.CreatedAt,
         UserId = comment.UserId,
-        Idea = comment.Idea
+        IdeaId = comment.IdeaId,
+        CreatedBy = comment.CreatedBy,
+        CreatedAt = DateTime.Now,
       };
       await _dbContext.AddAsync(newComment);
       await _dbContext.SaveChangesAsync();
@@ -70,16 +70,11 @@ namespace Enterprise_Web.Repository
 
     public async Task Update(Comment comment)
     {
-
       var findComments = await _dbContext.Comments.FirstOrDefaultAsync(x => x.Id == comment.Id);
       if (findComments != null)
       {
         findComments.Content = comment.Content;
-        findComments.IsAnonymous = comment.IsAnonymous;
-        findComments.CreatedAt = comment.CreatedAt;
-        findComments.CreatedBy = comment.CreatedBy;
-        findComments.IdeaId = comment.IdeaId;
-        findComments.UserId = comment.UserId;
+        findComments.CreatedAt = DateTime.Now;
       }
       _dbContext.Update(findComments);
       await _dbContext.SaveChangesAsync();
