@@ -120,7 +120,7 @@ namespace Enterprise_Web.Repository
             foreach (User user in listRemoveUser)
             {
                 var userH = _dbContext.Users.Where(x => x.Id == user.Id).Include(x => x.Department).FirstOrDefault();
-                var dept = _dbContext.Departments.Find(department.Id);
+                var dept = _dbContext.Departments.Include(x => x.Users).FirstOrDefault(x => x.Id == department.Id);
                 dept.Users.Remove(userH);
             }
             _dbContext.SaveChanges();
@@ -137,8 +137,8 @@ namespace Enterprise_Web.Repository
             foreach (User user in listNewUser)
             {
                 var userH = _dbContext.Users.Where(x => x.Id == user.Id).Include(x => x.Department).FirstOrDefault();
-                var divisionD = _dbContext.Departments.Find(department.Id);
-                divisionD.Users.Add(userH);
+                var dept = _dbContext.Departments.Include(x => x.Users).FirstOrDefault(x => x.Id == department.Id);
+                dept.Users.Add(userH); 
             }
             _dbContext.SaveChanges();
 
