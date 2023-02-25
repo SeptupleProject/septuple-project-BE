@@ -2,6 +2,7 @@
 using Enterprise_Web.Models;
 using Enterprise_Web.Pagination.Filter;
 using Enterprise_Web.Repository.IRepository;
+using Enterprise_Web.ViewModels;
 using EnterpriseWeb.Data;
 using Firebase.Auth;
 using Firebase.Storage;
@@ -17,10 +18,12 @@ namespace Enterprise_Web.Repository
         private static string AuthPassword = "app123";
 
         private readonly ApplicationDbContext _dbContext;
+        private readonly INotificationRepository _notificationRepository;
 
-        public IdeaRepository(ApplicationDbContext dbContext)
+        public IdeaRepository(ApplicationDbContext dbContext, INotificationRepository notificationRepository)
         {
             _dbContext = dbContext;
+            _notificationRepository = notificationRepository;
         }
         public (List<IdeaDTO>, PaginationFilter, int) GetAll(PaginationFilter filter)
         {
@@ -54,7 +57,7 @@ namespace Enterprise_Web.Repository
 
         }
 
-        public async Task Create(Idea idea)
+        public async Task Create(Idea idea, int userId, string userEmail)
         {
             var fileUpload = idea.File;
             var name = fileUpload.FileName;
@@ -98,12 +101,20 @@ namespace Enterprise_Web.Repository
                 IsAnonymos = idea.IsAnonymos,
                 AcademicYearId = idea.AcademicYearId,
                 CategoryId = idea.CategoryId,
-                CreatedBy = idea.CreatedBy,
-                CreatedAt = idea.CreatedAt,
-            
+                UserId = userId,
+                CreatedBy = userEmail,
+                CreatedAt = DateTime.Now,
             };
+
             await _dbContext.AddAsync(newIdea);
             await _dbContext.SaveChangesAsync();
+
+            var newNoti = new NotificationViewModel()
+            {
+                IdeaId = null,
+                CreatedBy = userEmail
+            };
+            await _notificationRepository.CheckAndSend(newNoti);
         }
 
 

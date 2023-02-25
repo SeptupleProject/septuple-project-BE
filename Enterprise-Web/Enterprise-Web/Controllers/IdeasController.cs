@@ -7,6 +7,7 @@ using Enterprise_Web.Repository.IRepository;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Data;
+using System.Security.Claims;
 
 namespace Enterprise_Web.Controllers
 {
@@ -43,7 +44,12 @@ namespace Enterprise_Web.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromForm]Idea idea)
         {
-            await _ideaRepository.Create(idea);
+            var claimIdentity = (ClaimsIdentity)User.Identity;
+            var claim = claimIdentity.FindFirst(ClaimTypes.NameIdentifier);
+            var userId = claim.Subject.Claims.ToList()[2];
+            var userEmail = claim.Subject.Claims.ToList()[1];
+
+            await _ideaRepository.Create(idea, int.Parse(userId.Value), userEmail.Value);
             return Ok(idea);
         }
 

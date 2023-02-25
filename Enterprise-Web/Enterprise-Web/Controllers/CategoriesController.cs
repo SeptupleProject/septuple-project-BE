@@ -8,6 +8,7 @@ using EnterpriseWeb.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Security.Claims;
 
 namespace Enterprise_Web.Controllers
 {
@@ -56,7 +57,12 @@ namespace Enterprise_Web.Controllers
             {
                 return StatusCode(400, "Category Name already Exist");
             }
-            await _categoryRepository.Create(category);
+
+            var claimIdentity = (ClaimsIdentity)User.Identity;
+            var claim = claimIdentity.FindFirst(ClaimTypes.NameIdentifier);
+            var userEmail = claim.Subject.Claims.ToList()[1];
+
+            await _categoryRepository.Create(category, userEmail.Value);
             return Ok(category);
         }
 

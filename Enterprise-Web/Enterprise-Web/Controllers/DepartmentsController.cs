@@ -8,6 +8,7 @@ using EnterpriseWeb.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace Enterprise_Web.Controllers
 {
@@ -35,7 +36,11 @@ namespace Enterprise_Web.Controllers
                 return StatusCode(400, "Department Name already exists");
             }
 
-            await _departmentRepository.Create(department);
+            var claimIdentity = (ClaimsIdentity)User.Identity;
+            var claim = claimIdentity.FindFirst(ClaimTypes.NameIdentifier);
+            var userEmail = claim.Subject.Claims.ToList()[1];
+
+            await _departmentRepository.Create(department, userEmail.Value);
             return Ok(department);
         }
 

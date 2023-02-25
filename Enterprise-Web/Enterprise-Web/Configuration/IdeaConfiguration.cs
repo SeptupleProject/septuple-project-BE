@@ -18,15 +18,14 @@ namespace Enterprise_Web.Configuration
             builder.Property(x => x.Image).IsRequired(true).HasMaxLength(255);
             builder.Property(x => x.CreatedBy).IsRequired(true).HasMaxLength(50);
             builder.Property(x => x.IsAnonymos).IsRequired(true);
-            builder.Property(x => x.AcademicYearId).IsRequired(true);
             builder.Property(x => x.CreatedAt).IsRequired(true);
-            builder.Property(x => x.CategoryId).IsRequired(true);
 
             builder.HasOne(x => x.AcademicYear).WithMany(x => x.Ideas)
                 .HasForeignKey(x => x.AcademicYearId).OnDelete(DeleteBehavior.Cascade); 
             builder.HasOne(x => x.Category).WithMany(x => x.Ideas)
-                .HasForeignKey(x => x.CategoryId).OnDelete(DeleteBehavior.Cascade);    
-
+                .HasForeignKey(x => x.CategoryId).OnDelete(DeleteBehavior.Cascade);
+            builder.HasOne(x => x.User).WithMany(x => x.Ideas)
+                .HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.NoAction);
         }
     }
 }

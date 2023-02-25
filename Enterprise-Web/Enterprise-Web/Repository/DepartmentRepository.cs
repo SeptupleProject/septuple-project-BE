@@ -25,7 +25,7 @@ namespace Enterprise_Web.Repository
             return false;
         }
 
-        public async Task Create(Department department)
+        public async Task Create(Department department, string userEmail)
         {
             ICollection<User> users = new List<User>();
             foreach (var i in department.Users)
@@ -38,7 +38,7 @@ namespace Enterprise_Web.Repository
             {
                 Name = department.Name,
                 Users = users,
-                CreatedBy = department.CreatedBy,
+                CreatedBy = userEmail,
                 CreatedAt = DateTime.Now,
             };
 
