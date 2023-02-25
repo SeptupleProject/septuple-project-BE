@@ -2,6 +2,7 @@ using Enterprise_Web.Middleware;
 using Enterprise_Web.Pagination.Service;
 using Enterprise_Web.Repository;
 using Enterprise_Web.Repository.IRepository;
+using Enterprise_Web.Services;
 using EnterpriseWeb.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics;
@@ -63,6 +64,8 @@ builder.Services.AddTransient<IAcademicYearRepository, AcademicYearRepository>()
 builder.Services.AddTransient<ICategoryRepository, CategoryRepository>();
 builder.Services.AddTransient<IIdeaRepository, IdeaRepository>();
 builder.Services.AddTransient<ICommentRepository, CommentRepository>();
+builder.Services.AddTransient<INotificationRepository, NotificationRepository>();
+builder.Services.AddTransient<IEmailSender, EmailSender>();
 
 var app = builder.Build();
 

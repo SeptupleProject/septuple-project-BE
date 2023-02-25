@@ -9,7 +9,7 @@ namespace Enterprise_Web.Repository.IRepository
     {
         (List<CommentDTO>, PaginationFilter, int) GetAll(PaginationFilter filter);
         Comment GetById(int id);
-        Task Create(Comment comment);
+        Task Create(Comment comment, int userId, string userEmail);
         Task Update(Comment comment);
         Task Delete(int id); 
     }

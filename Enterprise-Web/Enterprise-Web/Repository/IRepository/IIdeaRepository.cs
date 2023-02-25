@@ -8,7 +8,7 @@ namespace Enterprise_Web.Repository.IRepository
     {
         (List<IdeaDTO>, PaginationFilter, int) GetAll(PaginationFilter filter);
         Idea GetById(int id);
-        Task Create(Idea idea);
+        Task Create(Idea idea, int userId, string userEmail);
         Task Update(Idea idea);
         Task Delete(int id); 
     }

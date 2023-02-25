@@ -10,5 +10,6 @@ namespace EnterpriseWeb.Models
         public string? Role { get; set; }
         public Department? Department { get; set; }
         public ICollection<Comment>? Comments { get; set; }
-  }
+        public ICollection<Idea>? Ideas { get; set; }
+    }
 }
