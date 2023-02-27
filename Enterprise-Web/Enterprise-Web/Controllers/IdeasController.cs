@@ -70,5 +70,34 @@ namespace Enterprise_Web.Controllers
             await _ideaRepository.Delete(id);
             return Ok();
         }
+        
+        [HttpGet("/mostLikeIdea")]
+        public async Task<IActionResult> MostLikeIdea()
+        {
+            var mostLikeIdea = await _ideaRepository.MostLikeIdea();
+            return Ok(mostLikeIdea);
+        }
+        
+        [HttpGet("/mostDislikeIdea")]
+        public async Task<IActionResult> MostDisikeIdea()
+        {
+            var mostLikeIdea = await _ideaRepository.MostDislikeIdea();
+            return Ok(mostLikeIdea);
+        }
+        
+        [HttpGet("/mostCommentsIdea")]
+        public async Task<IActionResult> MostCommentsIdea()
+        {
+            var mostCommentIdea = await _ideaRepository.MostCommentIdea();
+            return Ok(mostCommentIdea);
+        }
+        
+        [HttpGet("/mostViewsIdea")]
+        public async Task<IActionResult> MostViewsIdea()
+        {
+            var mostViewsIdea = await _ideaRepository.MostViewsIdea();
+            return Ok(mostViewsIdea);
+        }
+        
     }
 }

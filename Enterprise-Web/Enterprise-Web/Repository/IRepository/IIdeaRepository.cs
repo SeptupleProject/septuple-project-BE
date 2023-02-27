@@ -10,6 +10,10 @@ namespace Enterprise_Web.Repository.IRepository
         Idea GetById(int id);
         Task Create(Idea idea);
         Task Update(Idea idea);
-        Task Delete(int id); 
+        Task Delete(int id);
+        Task<Idea> MostLikeIdea(); 
+        Task<Idea> MostDislikeIdea();
+        Task<Idea> MostCommentIdea();
+        Task<Idea> MostViewsIdea(); 
     }
 }

@@ -11,6 +11,6 @@ namespace Enterprise_Web.Repository.IRepository
         Comment GetById(int id);
         Task Create(Comment comment);
         Task Update(Comment comment);
-        Task Delete(int id); 
+        Task Delete(int id);
     }
 }

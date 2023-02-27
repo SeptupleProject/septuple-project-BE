@@ -9,6 +9,7 @@ namespace EnterpriseWeb.Models
         public string? Password { get; set; }
         public string? Role { get; set; }
         public Department? Department { get; set; }
+        public ICollection<Reaction>? Reactions { set; get; }
         public ICollection<Comment>? Comments { get; set; }
   }
 }

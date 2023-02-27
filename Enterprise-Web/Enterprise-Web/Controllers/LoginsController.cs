@@ -26,7 +26,7 @@ namespace Enterprise_Web.Controllers
         #region Login
 
         [HttpPost]
-        public async Task<IActionResult> LoginUser(UserViewModel userViewModel)
+        public async Task<IActionResult> LoginLUser(UserViewModel userViewModel)
         {
             var accessToken = _userRepository.Authenticate(userViewModel);
             if (accessToken == null)

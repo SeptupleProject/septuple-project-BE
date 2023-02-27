@@ -19,6 +19,9 @@ namespace EnterpriseWeb.Data
             modelBuilder.ApplyConfiguration(new CategoryConfiguration());
             modelBuilder.ApplyConfiguration(new IdeaConfiguration());
             modelBuilder.ApplyConfiguration(new CommentConfiguration());
+            modelBuilder.ApplyConfiguration(new ReactionConfiguration());
+            
+
         }
 
         public DbSet<Department> Departments { get; set; }
@@ -26,6 +29,8 @@ namespace EnterpriseWeb.Data
         public DbSet<Category> Categories { get; set; }
         public DbSet<AcademicYear> AcademicYears { get; set; }
         public DbSet<Idea> Ideas { get; set; }
+        
+        public DbSet<Reaction> Reactions { get; set; }
         public DbSet<Comment> Comments { get; set; }
     }
 }

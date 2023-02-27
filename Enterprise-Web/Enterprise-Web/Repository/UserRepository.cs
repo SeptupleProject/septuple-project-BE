@@ -179,7 +179,7 @@ namespace Enterprise_Web.Repository
             return null;
         }
 
-        private string GenerateAccessToken(User user)
+        private string GenerateAccessToken(User user) 
         {
             var claims = new[]
             {

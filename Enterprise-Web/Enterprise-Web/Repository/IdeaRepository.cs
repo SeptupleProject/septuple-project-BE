@@ -161,5 +161,68 @@ namespace Enterprise_Web.Repository
             _dbContext.Remove(ideaDelete);
             await _dbContext.SaveChangesAsync();
         }
+
+        public async Task<Idea> MostLikeIdea()
+        {
+            var listReactions = from r in _dbContext.Reactions select r;
+
+            /*
+             * Đầu tiên lấy trường có lượt Like --> Nhóm theo IdeaId
+             * --> sắp xếp giảm dần dựa trên số lượng element trong group --> lấy 1 tập hợp(IQueryable) theo Key dựa trên IdeaId
+             * --> lấy phần từ đầu tiên (tức là IdeaId đầu tiên) 
+             * 
+             */
+            var mostLikeIdeaId = listReactions.Where(r => r.Like == true)
+                .GroupBy(r => r.IdeaId)
+                .OrderByDescending(g => g.Count())
+                .Select(g => g.Key)
+                .FirstOrDefault();
+
+            var mostLikeIdea = await _dbContext.Ideas.FindAsync(mostLikeIdeaId);
+            
+            return mostLikeIdea;
+
+        }
+        
+        public async Task<Idea> MostDislikeIdea()
+        {
+            var listReactions = from r in _dbContext.Reactions select r;
+
+            /*
+             * Đầu tiên lấy trường có lượt Like --> Nhóm theo IdeaId
+             * --> sắp xếp giảm dần dựa trên số lượng element trong group --> lấy 1 tập hợp(IQueryable) theo Key dựa trên IdeaId
+             * --> lấy phần từ đầu tiên (tức là IdeaId đầu tiên) 
+             * 
+             */
+            var mostDislikeIdeaId = listReactions.Where(r => r.Like == false)
+                .GroupBy(r => r.IdeaId)
+                .OrderByDescending(g => g.Count())
+                .Select(g => g.Key)
+                .FirstOrDefault();
+
+            var mostDislikeIdea = await _dbContext.Ideas.FindAsync(mostDislikeIdeaId);
+            return mostDislikeIdea;
+        }
+
+        public async Task<Idea> MostCommentIdea()
+        {
+            var listCommentsIdea = from c in _dbContext.Comments select c;
+
+            var mostCommentsIdeaId = listCommentsIdea
+                .GroupBy(r => r.IdeaId)
+                .OrderByDescending(g => g.Count())
+                .Select(g => g.Key)
+                .FirstOrDefault();
+
+            var mostCommentsIdea = await _dbContext.Ideas.FindAsync(mostCommentsIdeaId);
+            return mostCommentsIdea;
+        }
+
+        public async Task<Idea> MostViewsIdea()
+        {
+            var mostViewsIdea = await _dbContext.Ideas.OrderByDescending(i => i.Views).FirstOrDefaultAsync();
+
+            return mostViewsIdea;
+        }
     }
 }
