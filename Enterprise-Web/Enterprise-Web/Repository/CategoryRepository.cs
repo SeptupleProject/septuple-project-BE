@@ -84,7 +84,6 @@ namespace Enterprise_Web.Repository
             if (findCategory != null)
             {
                 findCategory.Name = category.Name;
-                findCategory.CreatedAt = DateTime.Now;
             }
             _dbContext.Update(findCategory);
             await _dbContext.SaveChangesAsync();

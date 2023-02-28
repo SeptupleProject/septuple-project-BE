@@ -10,6 +10,7 @@ namespace Enterprise_Web.Repository.IRepository
         Idea GetById(int id);
         Task Create(Idea idea, int userId, string userEmail);
         Task Update(Idea idea);
-        Task Delete(int id); 
+        Task Delete(int id);
+        Task Download(string zipFile); 
     }
 }

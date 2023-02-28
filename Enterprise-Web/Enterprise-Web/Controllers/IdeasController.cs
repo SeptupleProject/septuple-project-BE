@@ -41,6 +41,13 @@ namespace Enterprise_Web.Controllers
             return Ok(idea);
         }
 
+        [HttpGet("Download")]
+        public IActionResult Download()
+        {
+            var download = _ideaRepository.Download("Images");
+            return Ok();
+        }
+
         [HttpPost]
         public async Task<IActionResult> Create([FromForm]Idea idea)
         {
