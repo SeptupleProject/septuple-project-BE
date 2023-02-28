@@ -6,6 +6,8 @@ using Enterprise_Web.Pagination.Service;
 using Enterprise_Web.Repository.IRepository;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using System.ComponentModel.DataAnnotations;
 using System.Data;
 using System.Security.Claims;
 
@@ -46,6 +48,14 @@ namespace Enterprise_Web.Controllers
         {
             var download = _ideaRepository.Download("Images");
             return Ok();
+        }
+        
+        [HttpGet("Download_csv")]
+        public IActionResult Download()
+        {
+            var ideaViewModels = _ideaRepository.GetIdeasToDownload();
+            _ideaRepository.DownloadIdeas(ideaViewModels);
+            return Ok(ideaViewModels);
         }
 
         [HttpPost]

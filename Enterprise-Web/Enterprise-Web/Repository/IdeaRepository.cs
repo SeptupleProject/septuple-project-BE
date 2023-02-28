@@ -1,7 +1,9 @@
-﻿using Enterprise_Web.DTOs;
+﻿using CsvHelper;
+using Enterprise_Web.DTOs;
 using Enterprise_Web.Models;
 using Enterprise_Web.Pagination.Filter;
 using Enterprise_Web.Repository.IRepository;
+using Enterprise_Web.Services;
 using Enterprise_Web.ViewModels;
 using EnterpriseWeb.Data;
 using Firebase.Auth;
@@ -12,6 +14,7 @@ using System;
 using System.IO.Compression;
 using System.Reflection;
 using IHostingEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
+using System.Globalization;
 
 namespace Enterprise_Web.Repository
 {
@@ -253,6 +256,42 @@ namespace Enterprise_Web.Repository
                 IzipOutputStream.Flush();
                 IzipOutputStream.Close();
             }
+            
+        public List<IdeaViewModel> GetIdeasToDownload()
+        {
+            var ideas = _dbContext.Ideas.Include(x => x.Category).Include(x => x.AcademicYear).ToList();
+            var ideaViewModels = new List<IdeaViewModel>();
+            foreach(var idea in ideas)
+            {
+                var ideaViewModel = new IdeaViewModel()
+                {
+                    Id = idea.Id,
+                    Title = idea.Title,
+                    Content = idea.Content,
+                    Views = idea.Views,
+                    Category = idea.Category?.Name,
+                    AcademicYear = idea.AcademicYear?.Name,
+                    CreatedBy = idea.CreatedBy,
+                    CreatedAt = idea.CreatedAt,
+                };
+                ideaViewModels.Add(ideaViewModel);
+            }
+            return ideaViewModels;
+        }
+
+        public Task DownloadIdeas(List<IdeaViewModel> ideaViewModels)
+        {
+            string pathUser = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+            string csvPath = Path.Combine(pathUser, $"Downloads\\ideas-{DateTime.Now.ToFileTime()}.csv");
+            
+            using (var streamWriter = new StreamWriter(csvPath))
+            {
+                using (var csvWriter = new CsvWriter(streamWriter, CultureInfo.InvariantCulture))
+                {
+                    csvWriter.Context.RegisterClassMap<IdeasClassMap>();
+                    csvWriter.WriteRecords(ideaViewModels);                   
+                }
+            }          
             return Task.CompletedTask;
         }
     }
