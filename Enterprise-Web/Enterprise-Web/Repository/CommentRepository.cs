@@ -65,7 +65,7 @@ namespace Enterprise_Web.Repository
 
             var newNoti = new NotificationViewModel()
             {
-                IdeaId = 6,
+                IdeaId = comment.IdeaId,
                 CreatedBy = userEmail
             };
             await _notificationRepository.CheckAndSend(newNoti);
