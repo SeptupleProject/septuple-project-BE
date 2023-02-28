@@ -8,7 +8,12 @@ using Enterprise_Web.ViewModels;
 using EnterpriseWeb.Data;
 using Firebase.Auth;
 using Firebase.Storage;
+using ICSharpCode.SharpZipLib.Zip;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.IO.Compression;
+using System.Reflection;
+using IHostingEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
 using System.Globalization;
 
 namespace Enterprise_Web.Repository
@@ -20,13 +25,17 @@ namespace Enterprise_Web.Repository
         private static string AuthEmail = "dinhgiabao@gmail.com";
         private static string AuthPassword = "app123";
 
+        private readonly IWebHostEnvironment _env;
+        private readonly IHostingEnvironment _hosting;
         private readonly ApplicationDbContext _dbContext;
         private readonly INotificationRepository _notificationRepository;
 
-        public IdeaRepository(ApplicationDbContext dbContext, INotificationRepository notificationRepository)
+        public IdeaRepository(ApplicationDbContext dbContext, INotificationRepository notificationRepository, IWebHostEnvironment env, IHostingEnvironment hosting)
         {
             _dbContext = dbContext;
             _notificationRepository = notificationRepository;
+            _env = env;
+            _hosting = hosting;
         }
         public (List<IdeaDTO>, PaginationFilter, int) GetAll(PaginationFilter filter)
         {
@@ -64,10 +73,29 @@ namespace Enterprise_Web.Repository
         {
             var fileUpload = idea.File;
             var name = fileUpload.FileName;
-            var stream = fileUpload.OpenReadStream();
+            FileStream fileStream = null;
             string image = "";
             if (fileUpload.Length > 0)
             {
+                var path = Path.Combine(_env.ContentRootPath, "Images");
+
+                if (Directory.Exists(path))
+                {
+                    using ( fileStream = new FileStream(Path.Combine(path, name), FileMode.Create))
+                    {
+                        await fileUpload.CopyToAsync(fileStream);
+                    }
+                    fileStream = new FileStream(Path.Combine(path, name), FileMode.Open);
+                }
+                else
+                {
+                    Directory.CreateDirectory(path);
+                    using ( fileStream = new FileStream(Path.Combine(path, name), FileMode.Create))
+                    {
+                        await fileUpload.CopyToAsync(fileStream);
+                    }
+                }
+
                 var auth = new FirebaseAuthProvider(new FirebaseConfig(apiKey));
                 var a = await auth.SignInWithEmailAndPasswordAsync(AuthEmail, AuthPassword);
 
@@ -82,7 +110,7 @@ namespace Enterprise_Web.Repository
                     })
                     .Child("images")
                     .Child(name)
-                    .PutAsync(stream, cancel.Token);
+                    .PutAsync(fileStream, cancel.Token);
 
                 try
                 {
@@ -125,10 +153,29 @@ namespace Enterprise_Web.Repository
         {
             var fileUpload = idea.File;
             var name = fileUpload.FileName;
-            var stream = fileUpload.OpenReadStream();
+            FileStream fileStream = null;
             string image = "";
             if (fileUpload.Length > 0)
             {
+                var path = Path.Combine(_env.ContentRootPath, "Images");
+
+                if (Directory.Exists(path))
+                {
+                    using (fileStream = new FileStream(Path.Combine(path, name), FileMode.Create))
+                    {
+                        await fileUpload.CopyToAsync(fileStream);
+                    }
+                    fileStream = new FileStream(Path.Combine(path, name), FileMode.Open);
+                }
+                else
+                {
+                    Directory.CreateDirectory(path);
+                    using (fileStream = new FileStream(Path.Combine(path, name), FileMode.Create))
+                    {
+                        await fileUpload.CopyToAsync(fileStream);
+                    }
+                }
+
                 var auth = new FirebaseAuthProvider(new FirebaseConfig(apiKey));
                 var a = await auth.SignInWithEmailAndPasswordAsync(AuthEmail, AuthPassword);
 
@@ -143,7 +190,7 @@ namespace Enterprise_Web.Repository
                     })
                     .Child("images")
                     .Child(name)
-                    .PutAsync(stream, cancel.Token);
+                    .PutAsync(fileStream, cancel.Token);
 
                 try
                 {
@@ -176,6 +223,40 @@ namespace Enterprise_Web.Repository
             await _dbContext.SaveChangesAsync();
         }
 
+        public Task Download(string zipFile)
+        {
+            var findImage = Directory.GetFiles(zipFile).ToList();
+            var fileName = "Image.zip";
+            string pathUser = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+            string tempOutput = Path.Combine(pathUser, $"Downloads\\{fileName}");
+
+            using (ZipOutputStream IzipOutputStream = new ZipOutputStream(System.IO.File.Create(tempOutput)))
+            {
+                IzipOutputStream.SetLevel(9);
+                byte[] buffer = new byte[4096];
+
+                for (int i = 0; i < findImage.Count; i++)
+                {
+                    ZipEntry entry = new ZipEntry(Path.GetFileName(findImage[i]));
+                    entry.DateTime = DateTime.Now;
+                    entry.IsUnicodeText = true;
+                    IzipOutputStream.PutNextEntry(entry);
+
+                    using (FileStream oFileStream = System.IO.File.OpenRead(findImage[i]))
+                    {
+                        int sourceBytes;
+                        do
+                        {
+                            sourceBytes = oFileStream.Read(buffer, 0, buffer.Length);
+                            IzipOutputStream.Write(buffer, 0, sourceBytes);
+                        } while (sourceBytes > 0);
+                    }
+                }
+                IzipOutputStream.Finish();
+                IzipOutputStream.Flush();
+                IzipOutputStream.Close();
+            }
+            
         public List<IdeaViewModel> GetIdeasToDownload()
         {
             var ideas = _dbContext.Ideas.Include(x => x.Category).Include(x => x.AcademicYear).ToList();

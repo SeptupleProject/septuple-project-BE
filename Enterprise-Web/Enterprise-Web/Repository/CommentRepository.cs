@@ -84,7 +84,6 @@ namespace Enterprise_Web.Repository
             if (findComments != null)
             {
                 findComments.Content = comment.Content;
-                findComments.CreatedAt = DateTime.Now;
             }
             _dbContext.Update(findComments);
             await _dbContext.SaveChangesAsync();

@@ -12,6 +12,7 @@ namespace Enterprise_Web.Repository.IRepository
         Task Create(Idea idea, int userId, string userEmail);
         Task Update(Idea idea);
         Task Delete(int id);
+        Task Download(string zipFile); 
         List<IdeaViewModel> GetIdeasToDownload();
         Task DownloadIdeas(List<IdeaViewModel> ideaViewModels);
     }

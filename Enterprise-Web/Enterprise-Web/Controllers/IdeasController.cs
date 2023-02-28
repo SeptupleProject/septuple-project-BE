@@ -43,6 +43,13 @@ namespace Enterprise_Web.Controllers
             return Ok(idea);
         }
 
+        [HttpGet("Download")]
+        public IActionResult Download()
+        {
+            var download = _ideaRepository.Download("Images");
+            return Ok();
+        }
+        
         [HttpGet("Download_csv")]
         public IActionResult Download()
         {
