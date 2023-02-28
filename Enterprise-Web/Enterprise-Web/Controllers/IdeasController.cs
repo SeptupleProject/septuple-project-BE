@@ -71,28 +71,28 @@ namespace Enterprise_Web.Controllers
             return Ok();
         }
         
-        [HttpGet("/mostLikeIdea")]
+        [HttpGet("mostLike")]
         public async Task<IActionResult> MostLikeIdea()
         {
             var mostLikeIdea = await _ideaRepository.MostLikeIdea();
             return Ok(mostLikeIdea);
         }
         
-        [HttpGet("/mostDislikeIdea")]
+        [HttpGet("mostDislike")]
         public async Task<IActionResult> MostDisikeIdea()
         {
             var mostLikeIdea = await _ideaRepository.MostDislikeIdea();
             return Ok(mostLikeIdea);
         }
         
-        [HttpGet("/mostCommentsIdea")]
+        [HttpGet("mostComments")]
         public async Task<IActionResult> MostCommentsIdea()
         {
             var mostCommentIdea = await _ideaRepository.MostCommentIdea();
             return Ok(mostCommentIdea);
         }
         
-        [HttpGet("/mostViewsIdea")]
+        [HttpGet("mostViews")]
         public async Task<IActionResult> MostViewsIdea()
         {
             var mostViewsIdea = await _ideaRepository.MostViewsIdea();
