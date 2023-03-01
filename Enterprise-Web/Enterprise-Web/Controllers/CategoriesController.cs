@@ -46,6 +46,13 @@ namespace Enterprise_Web.Controllers
             return Ok(category);
         }
 
+        [HttpGet("dropdown")]
+        public async Task<IActionResult> GetCategoryDropdown()
+        {
+            var categorydropdown = _categoryRepository.GetCategoryDropdown();
+            return Ok(categorydropdown);
+        }
+
         #endregion
 
         #region Post API
