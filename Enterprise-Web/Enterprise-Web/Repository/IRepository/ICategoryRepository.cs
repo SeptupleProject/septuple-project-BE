@@ -8,6 +8,7 @@ namespace Enterprise_Web.Repository.IRepository
     {
         (List<CategoryDTO>, PaginationFilter, int) GetAll(PaginationFilter filter);
         Category GetCategoryById(int id);
+        List<CategoryDropdownDTO> GetCategoryDropdown();
         Task Create(Category category, string userEmail);
         Task Update(Category category);
         Task Delete(int id);

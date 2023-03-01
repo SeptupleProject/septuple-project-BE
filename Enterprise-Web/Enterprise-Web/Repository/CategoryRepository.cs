@@ -78,6 +78,7 @@ namespace Enterprise_Web.Repository
             _dbContext.Remove(findCategory);
             await _dbContext.SaveChangesAsync();
         }
+
         public async Task Update(Category category)
         {
             var findCategory = await _dbContext.Categories.FirstOrDefaultAsync(x => x.Id == category.Id);
@@ -87,6 +88,22 @@ namespace Enterprise_Web.Repository
             }
             _dbContext.Update(findCategory);
             await _dbContext.SaveChangesAsync();
+        }
+
+        public List<CategoryDropdownDTO> GetCategoryDropdown()
+        {
+            var categories = _dbContext.Categories.ToList();
+            var dropdownCategories = new List<CategoryDropdownDTO>();
+
+            foreach (var category in categories)
+            {
+                dropdownCategories.Add(new CategoryDropdownDTO { 
+                    Id = category.Id,
+                    Name = category.Name,
+                });
+            }
+            
+            return dropdownCategories;
         }
     }
 }

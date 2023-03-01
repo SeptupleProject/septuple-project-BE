@@ -60,7 +60,7 @@ namespace Enterprise_Web.Repository
 
         public Idea GetById(int id)
         {
-            var ideaToGet = _dbContext.Ideas.FirstOrDefault(i => i.Id == id);
+            var ideaToGet = _dbContext.Ideas.Include(x => x.Comments).FirstOrDefault(i => i.Id == id);
             if (ideaToGet == null)
             {
                 return null;
@@ -256,6 +256,8 @@ namespace Enterprise_Web.Repository
                 IzipOutputStream.Flush();
                 IzipOutputStream.Close();
             }
+            return Task.CompletedTask;
+        }
             
         public List<IdeaViewModel> GetIdeasToDownload()
         {

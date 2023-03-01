@@ -51,7 +51,7 @@ namespace Enterprise_Web.Controllers
         }
         
         [HttpGet("Download_csv")]
-        public IActionResult Download()
+        public IActionResult DownloadCsv()
         {
             var ideaViewModels = _ideaRepository.GetIdeasToDownload();
             _ideaRepository.DownloadIdeas(ideaViewModels);
