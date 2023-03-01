@@ -93,5 +93,17 @@ namespace Enterprise_Web.Controllers
             await _ideaRepository.Delete(id);
             return Ok();
         }
-    }
+
+        [HttpPut("incrementview/{id}")]
+        public async Task<IActionResult> IncrementView([FromForm] Idea idea, int id)
+        {
+          if (id != idea.Id)
+          {
+            return BadRequest("Ideas Not found");
+          }
+          await _ideaRepository.IcrementedView(idea);
+
+          return Ok(idea);
+        }
+  }
 }
