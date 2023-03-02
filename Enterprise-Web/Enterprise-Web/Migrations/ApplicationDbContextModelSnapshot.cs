@@ -229,6 +229,24 @@ namespace EnterpriseWeb.Migrations
                     b.ToTable("Ideas", (string)null);
                 });
 
+            modelBuilder.Entity("Enterprise_Web.Models.Reaction", b =>
+                {
+                    b.Property<int>("IdeaId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.Property<bool?>("Like")
+                        .HasColumnType("bit");
+
+                    b.HasKey("IdeaId", "UserId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Reactions", (string)null);
+                });
+
             modelBuilder.Entity("EnterpriseWeb.Models.Comment", b =>
                 {
                     b.HasOne("Enterprise_Web.Models.Idea", "Idea")
@@ -283,6 +301,25 @@ namespace EnterpriseWeb.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Enterprise_Web.Models.Reaction", b =>
+                {
+                    b.HasOne("Enterprise_Web.Models.Idea", "Idea")
+                        .WithMany("Reactions")
+                        .HasForeignKey("IdeaId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("EnterpriseWeb.Models.User", "User")
+                        .WithMany("Reactions")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("Idea");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("EnterpriseWeb.Models.Category", b =>
                 {
                     b.Navigation("Ideas");
@@ -298,6 +335,8 @@ namespace EnterpriseWeb.Migrations
                     b.Navigation("Comments");
 
                     b.Navigation("Ideas");
+
+                    b.Navigation("Reactions");
                 });
 
             modelBuilder.Entity("Enterprise_Web.Models.AcademicYear", b =>
@@ -308,6 +347,8 @@ namespace EnterpriseWeb.Migrations
             modelBuilder.Entity("Enterprise_Web.Models.Idea", b =>
                 {
                     b.Navigation("Comments");
+
+                    b.Navigation("Reactions");
                 });
 #pragma warning restore 612, 618
         }

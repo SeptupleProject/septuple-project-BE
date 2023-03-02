@@ -47,9 +47,9 @@ namespace Enterprise_Web.Controllers
         public IActionResult Download()
         {
             var download = _ideaRepository.Download("Images");
-            return Ok();
+            return Ok(download);
         }
-        
+
         [HttpGet("Download_csv")]
         public IActionResult DownloadCsv()
         {
@@ -59,7 +59,7 @@ namespace Enterprise_Web.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromForm]Idea idea)
+        public async Task<IActionResult> Create([FromForm] Idea idea)
         {
             var claimIdentity = (ClaimsIdentity)User.Identity;
             var claim = claimIdentity.FindFirst(ClaimTypes.NameIdentifier);
@@ -97,13 +97,41 @@ namespace Enterprise_Web.Controllers
         [HttpPut("incrementview/{id}")]
         public async Task<IActionResult> IncrementView([FromForm] Idea idea, int id)
         {
-          if (id != idea.Id)
-          {
-            return BadRequest("Ideas Not found");
-          }
-          await _ideaRepository.IcrementedView(idea);
+            if (id != idea.Id)
+            {
+                return BadRequest("Ideas Not found");
+            }
+            await _ideaRepository.IcrementedView(idea);
 
-          return Ok(idea);
+            return Ok(idea);
         }
-  }
+
+        [HttpGet("mostLike")]
+        public async Task<IActionResult> MostLikeIdea()
+        {
+            var mostLikeIdea = await _ideaRepository.MostLikeIdea();
+            return Ok(mostLikeIdea);
+        }
+
+        [HttpGet("mostDislike")]
+        public async Task<IActionResult> MostDisikeIdea()
+        {
+            var mostLikeIdea = await _ideaRepository.MostDislikeIdea();
+            return Ok(mostLikeIdea);
+        }
+
+        [HttpGet("mostComments")]
+        public async Task<IActionResult> MostCommentsIdea()
+        {
+            var mostCommentIdea = await _ideaRepository.MostCommentIdea();
+            return Ok(mostCommentIdea);
+        }
+
+        [HttpGet("mostViews")]
+        public async Task<IActionResult> MostViewsIdea()
+        {
+            var mostViewsIdea = await _ideaRepository.MostViewsIdea();
+            return Ok(mostViewsIdea);
+        }
+    }
 }

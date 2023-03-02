@@ -17,6 +17,7 @@ namespace Enterprise_Web.Models
         public Category? Category { get; set; }
         public int UserId { get; set; }
         public User? User { get; set; }
+        public ICollection<Reaction>? Reactions { set; get; }
         public ICollection<Comment>? Comments { get; set; }
         [NotMapped]
         public IFormFile? File { get; set; }
