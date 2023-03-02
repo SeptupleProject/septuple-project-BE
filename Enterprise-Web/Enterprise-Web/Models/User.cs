@@ -11,5 +11,6 @@ namespace EnterpriseWeb.Models
         public Department? Department { get; set; }
         public ICollection<Comment>? Comments { get; set; }
         public ICollection<Idea>? Ideas { get; set; }
+        public ICollection<Reaction>? Reactions { set; get; }
     }
 }

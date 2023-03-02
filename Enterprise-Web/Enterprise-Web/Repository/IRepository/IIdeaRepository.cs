@@ -16,5 +16,9 @@ namespace Enterprise_Web.Repository.IRepository
         List<IdeaViewModel> GetIdeasToDownload();
         Task DownloadIdeas(List<IdeaViewModel> ideaViewModels);
         Task IcrementedView(Idea idea);
+        Task<List<Idea>> MostLikeIdea();
+        Task<List<Idea>> MostDislikeIdea();
+        Task<List<Idea>> MostCommentIdea();
+        Task<List<Idea>> MostViewsIdea();
     }
 }
