@@ -51,7 +51,12 @@ namespace Enterprise_Web.Repository
                                      Id = idea.Id,
                                      Title = idea.Title,
                                      Content = idea.Content,
-                                     CategoryName = idea.Category.Name
+                                     CategoryName = idea.Category.Name,
+                                     Image = idea.Image,
+                                     CreatedBy = idea.CreatedBy,
+                                     Like = idea.Reactions.Count(x=>x.Like == true),
+                                     DisLike = idea.Reactions.Count(x=>x.Like == false),
+                                     Comments = idea.Comments.Count()
                                  })
                                .OrderByDescending(x => x.Id)
                                .Skip((validFilter.PageNumber - 1) * validFilter.PageSize)
