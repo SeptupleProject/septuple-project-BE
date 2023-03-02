@@ -15,5 +15,6 @@ namespace Enterprise_Web.Repository.IRepository
         Task Download(string zipFile); 
         List<IdeaViewModel> GetIdeasToDownload();
         Task DownloadIdeas(List<IdeaViewModel> ideaViewModels);
+        Task IcrementedView(Idea idea);
     }
 }
