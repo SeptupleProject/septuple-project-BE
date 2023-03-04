@@ -133,5 +133,28 @@ namespace Enterprise_Web.Controllers
             var mostViewsIdea = await _ideaRepository.MostViewsIdea();
             return Ok(mostViewsIdea);
         }
+
+        
+        [HttpPost]
+        [Route("likeIdea/{idUser}/{idIdea}")]
+        public async Task<IActionResult> LikeIdea(int idUser, int idIdea)
+        {
+            var ideaToLike = _ideaRepository.GetById(idIdea);
+            var result = await _ideaRepository.LikeIdea(idUser, ideaToLike);
+        
+            return Ok(result);
+        }
+        
+        [HttpPost]
+        [Route("dislikeIdea/{idUser}/{idIdea}")]
+        public async Task<IActionResult> DislikeIdea(int idUser, int idIdea)
+        {
+            var ideaToLike = _ideaRepository.GetById(idIdea);
+            var result = await _ideaRepository.DislikeIdea(idUser, ideaToLike);
+
+            return Ok(result);
+        }
+
+
     }
 }
