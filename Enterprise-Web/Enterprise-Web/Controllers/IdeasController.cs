@@ -133,5 +133,12 @@ namespace Enterprise_Web.Controllers
             var mostViewsIdea = await _ideaRepository.MostViewsIdea();
             return Ok(mostViewsIdea);
         }
+
+        [HttpGet("IdeasCommentsByDept")]
+        public async Task<IActionResult> GetIdeasCmtsByDept()
+        {
+            var ideasCmtsByDept = _ideaRepository.IdeasCmtsPerDept();
+            return Ok(ideasCmtsByDept);
+        }
     }
 }
