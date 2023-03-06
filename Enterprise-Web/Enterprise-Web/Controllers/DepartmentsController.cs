@@ -12,7 +12,7 @@ using System.Security.Claims;
 
 namespace Enterprise_Web.Controllers
 {
-    //[Authorize(Roles = "QAM")]
+    [Authorize(Roles = "QAM")]
     [Route("api/[controller]")]
     [ApiController]
     public class DepartmentsController : ControllerBase
