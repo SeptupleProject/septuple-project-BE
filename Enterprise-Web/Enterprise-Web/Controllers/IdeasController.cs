@@ -13,7 +13,7 @@ using System.Security.Claims;
 
 namespace Enterprise_Web.Controllers
 {
-    //[Authorize]
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class IdeasController : ControllerBase
@@ -134,7 +134,6 @@ namespace Enterprise_Web.Controllers
             return Ok(mostViewsIdea);
         }
 
-        
         [HttpPost]
         [Route("likeIdea/{idIdea}")]
         public async Task<IActionResult> LikeIdea(int ideaId)
@@ -164,6 +163,11 @@ namespace Enterprise_Web.Controllers
             return Ok(result);
         }
 
-
+        [HttpGet("IdeasCommentsByDept")]
+        public async Task<IActionResult> GetIdeasCmtsByDept()
+        {
+            var ideasCmtsByDept = _ideaRepository.IdeasCmtsPerDept();
+            return Ok(ideasCmtsByDept);
+        }
     }
 }

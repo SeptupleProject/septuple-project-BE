@@ -54,8 +54,8 @@ namespace Enterprise_Web.Repository
                                      CategoryName = idea.Category.Name,
                                      Image = idea.Image,
                                      CreatedBy = idea.CreatedBy,
-                                     Like = idea.Reactions.Count(x=>x.Like == true),
-                                     DisLike = idea.Reactions.Count(x=>x.Like == false),
+                                     Like = idea.Reactions.Count(x => x.Like == true),
+                                     DisLike = idea.Reactions.Count(x => x.Like == false),
                                      Comments = idea.Comments.Count()
                                  })
                                .OrderByDescending(x => x.Id)
@@ -334,12 +334,14 @@ namespace Enterprise_Web.Repository
 
         public async Task<List<Idea>> MostDislikeIdea()
         {
-            var findIdeaId = (from r in _dbContext.Reactions where r.Like == false group r by r.IdeaId into GroupIdea
+            var findIdeaId = (from r in _dbContext.Reactions
+                              where r.Like == false
+                              group r by r.IdeaId into GroupIdea
                               select new Idea
-                                   {
-                                       Id = GroupIdea.Key
-                                   }).ToArray();
-            var mostDislikeIdea = _dbContext.Ideas.Where(x=> findIdeaId.Contains(x)).OrderByDescending(x=>x.Reactions.Count(x=>x.Like == false)).Take(3).ToList();
+                              {
+                                  Id = GroupIdea.Key
+                              }).ToArray();
+            var mostDislikeIdea = _dbContext.Ideas.Where(x => findIdeaId.Contains(x)).OrderByDescending(x => x.Reactions.Count(x => x.Like == false)).Take(3).ToList();
             return mostDislikeIdea;
         }
 
@@ -361,6 +363,7 @@ namespace Enterprise_Web.Repository
 
             return mostViewsIdea;
         }
+
 
         public async Task<Reaction> LikeIdea(int userId, Idea idea)
         {
@@ -432,6 +435,39 @@ namespace Enterprise_Web.Repository
             }
 
             return userReaction; 
+
+        public async Task<List<IdeasCmtsPerDeptDTO>> IdeasCmtsPerDept()
+        {
+            var ideasByDept = (
+                    from i in _dbContext.Ideas
+                    join u in _dbContext.Users on i.UserId equals u.Id
+                    join d in _dbContext.Departments on u.Department.Id equals d.Id
+                    group d by d.Name into ideaGroup
+                    select new IdeasPerDeptDTO
+                    {
+                        Name = ideaGroup.First().Name,
+                        NumOfIdeas = ideaGroup.Count()
+                    });
+
+            var cmtsByDept = (
+                    from c in _dbContext.Comments
+                    join u in _dbContext.Users on c.UserId equals u.Id
+                    join d in _dbContext.Departments on u.Department.Id equals d.Id
+                    group d by d.Name into cmtGroup
+                    select new CmtsPerDeptDTO
+                    {
+                        Name = cmtGroup.First().Name,
+                        NumOfCmts = cmtGroup.Count()
+                    });
+
+            return (from i in ideasByDept
+                    join c in cmtsByDept on i.Name equals c.Name
+                    select new IdeasCmtsPerDeptDTO
+                    {
+                        Name = i.Name,
+                        NumOfIdeas = i.NumOfIdeas,
+                        NumOfCmts = c.NumOfCmts
+                    }).ToList();
         }
     }
 }
