@@ -400,11 +400,11 @@ namespace Enterprise_Web.Repository
 
             return userReaction; 
         }
-        
+
         public async Task<Reaction> DislikeIdea(int userId, Idea idea)
         {
             var userReaction = _dbContext.Reactions.Where(i => (i.UserId == userId && i.IdeaId == idea.Id)).FirstOrDefault();
-            
+
             if (userReaction == null)
             {
                 var reactionToDislike = new Reaction
@@ -418,7 +418,7 @@ namespace Enterprise_Web.Repository
                 await _dbContext.SaveChangesAsync();
                 return reactionToDislike;
             }
-            
+
             if (userReaction.Like == false)
             {
                 _dbContext.Reactions.Remove(userReaction);
@@ -429,12 +429,13 @@ namespace Enterprise_Web.Repository
             if (userReaction.Like == true)
             {
                 userReaction.Like = false;
-                _dbContext.Reactions.Update(userReaction); 
+                _dbContext.Reactions.Update(userReaction);
                 await _dbContext.SaveChangesAsync();
-                return userReaction; 
+                return userReaction;
             }
 
-            return userReaction; 
+            return userReaction;
+        }
 
         public async Task<List<IdeasCmtsPerDeptDTO>> IdeasCmtsPerDept()
         {
