@@ -134,6 +134,35 @@ namespace Enterprise_Web.Controllers
             return Ok(mostViewsIdea);
         }
 
+        [HttpPost]
+        [Route("likeIdea/{idIdea}")]
+        public async Task<IActionResult> LikeIdea(int ideaId)
+        {
+            var claimIdentity = (ClaimsIdentity)User.Identity;
+            var claim = claimIdentity.FindFirst(ClaimTypes.NameIdentifier);
+            var userId = claim.Subject.Claims.ToList()[2].Value;
+
+            var ideaToLike = _ideaRepository.GetById(ideaId);
+            var result = await _ideaRepository.LikeIdea(int.Parse(userId), ideaToLike);
+        
+            return Ok(result);
+        }
+        
+        [HttpPost]
+        [Route("dislikeIdea/{idIdea}")]
+        public async Task<IActionResult> DislikeIdea(int ideaId)
+        {
+
+            var claimIdentity = (ClaimsIdentity)User.Identity;
+            var claim = claimIdentity.FindFirst(ClaimTypes.NameIdentifier);
+            var userId = claim.Subject.Claims.ToList()[2].Value;
+
+            var ideaToLike = _ideaRepository.GetById(ideaId);
+            var result = await _ideaRepository.DislikeIdea(int.Parse(userId), ideaToLike);
+
+            return Ok(result);
+        }
+
         [HttpGet("IdeasCommentsByDept")]
         public async Task<IActionResult> GetIdeasCmtsByDept()
         {
