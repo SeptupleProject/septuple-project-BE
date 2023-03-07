@@ -136,21 +136,30 @@ namespace Enterprise_Web.Controllers
 
         
         [HttpPost]
-        [Route("likeIdea/{idUser}/{idIdea}")]
-        public async Task<IActionResult> LikeIdea(int idUser, int idIdea)
+        [Route("likeIdea/{idIdea}")]
+        public async Task<IActionResult> LikeIdea(int ideaId)
         {
-            var ideaToLike = _ideaRepository.GetById(idIdea);
-            var result = await _ideaRepository.LikeIdea(idUser, ideaToLike);
+            var claimIdentity = (ClaimsIdentity)User.Identity;
+            var claim = claimIdentity.FindFirst(ClaimTypes.NameIdentifier);
+            var userId = claim.Subject.Claims.ToList()[2].Value;
+
+            var ideaToLike = _ideaRepository.GetById(ideaId);
+            var result = await _ideaRepository.LikeIdea(int.Parse(userId), ideaToLike);
         
             return Ok(result);
         }
         
         [HttpPost]
-        [Route("dislikeIdea/{idUser}/{idIdea}")]
-        public async Task<IActionResult> DislikeIdea(int idUser, int idIdea)
+        [Route("dislikeIdea/{idIdea}")]
+        public async Task<IActionResult> DislikeIdea(int ideaId)
         {
-            var ideaToLike = _ideaRepository.GetById(idIdea);
-            var result = await _ideaRepository.DislikeIdea(idUser, ideaToLike);
+
+            var claimIdentity = (ClaimsIdentity)User.Identity;
+            var claim = claimIdentity.FindFirst(ClaimTypes.NameIdentifier);
+            var userId = claim.Subject.Claims.ToList()[2].Value;
+
+            var ideaToLike = _ideaRepository.GetById(ideaId);
+            var result = await _ideaRepository.DislikeIdea(int.Parse(userId), ideaToLike);
 
             return Ok(result);
         }

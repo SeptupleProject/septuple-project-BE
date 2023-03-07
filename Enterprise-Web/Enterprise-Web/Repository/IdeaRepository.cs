@@ -362,15 +362,15 @@ namespace Enterprise_Web.Repository
             return mostViewsIdea;
         }
 
-        public async Task<Reaction> LikeIdea(int idUser, Idea idea)
+        public async Task<Reaction> LikeIdea(int userId, Idea idea)
         {
-            var userReaction = _dbContext.Reactions.Where(i => (i.UserId == idUser && i.IdeaId == idea.Id)).FirstOrDefault();
+            var userReaction = _dbContext.Reactions.Where(i => (i.UserId == userId && i.IdeaId == idea.Id)).FirstOrDefault();
             
             if (userReaction == null)
             {
                 var reactionToLike = new Reaction
                 {
-                    UserId = idUser,
+                    UserId = userId,
                     IdeaId = idea.Id,
                     Like = true
                 };
@@ -378,6 +378,13 @@ namespace Enterprise_Web.Repository
                 _dbContext.Reactions.Add(reactionToLike);
                 await _dbContext.SaveChangesAsync();
                 return reactionToLike;
+            }
+
+            if (userReaction.Like == true)
+            {
+                _dbContext.Reactions.Remove(userReaction);
+                await _dbContext.SaveChangesAsync();
+                return userReaction;
             }
 
             if (userReaction.Like == false)
@@ -391,15 +398,15 @@ namespace Enterprise_Web.Repository
             return userReaction; 
         }
         
-        public async Task<Reaction> DislikeIdea(int idUser, Idea idea)
+        public async Task<Reaction> DislikeIdea(int userId, Idea idea)
         {
-            var userReaction = _dbContext.Reactions.Where(i => (i.UserId == idUser && i.IdeaId == idea.Id)).FirstOrDefault();
+            var userReaction = _dbContext.Reactions.Where(i => (i.UserId == userId && i.IdeaId == idea.Id)).FirstOrDefault();
             
             if (userReaction == null)
             {
                 var reactionToDislike = new Reaction
                 {
-                    UserId = idUser,
+                    UserId = userId,
                     IdeaId = idea.Id,
                     Like = false
                 };
@@ -407,6 +414,13 @@ namespace Enterprise_Web.Repository
                 _dbContext.Reactions.Add(reactionToDislike);
                 await _dbContext.SaveChangesAsync();
                 return reactionToDislike;
+            }
+            
+            if (userReaction.Like == false)
+            {
+                _dbContext.Reactions.Remove(userReaction);
+                await _dbContext.SaveChangesAsync();
+                return userReaction;
             }
 
             if (userReaction.Like == true)
