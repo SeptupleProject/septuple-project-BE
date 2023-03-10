@@ -20,5 +20,8 @@ namespace Enterprise_Web.Repository.IRepository
         Task<List<Idea>> MostDislikeIdea();
         Task<List<Idea>> MostCommentIdea();
         Task<List<Idea>> MostViewsIdea();
+        Task<Reaction> LikeIdea(int userId, Idea idea); 
+        Task<Reaction> DislikeIdea(int userId, Idea idea); 
+        Task<List<IdeasCmtsPerDeptDTO>> IdeasCmtsPerDept();
     }
 }
