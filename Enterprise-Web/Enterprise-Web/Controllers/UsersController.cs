@@ -11,7 +11,7 @@ using System.Security.Claims;
 
 namespace Enterprise_Web.Controllers
 {
-    [Authorize(Roles ="Admin,QAC")]
+    [Authorize(Roles ="Admin,QAM,QAC")]
     [Route("api/[controller]")]
     [ApiController]
     public class UsersController : ControllerBase
@@ -34,6 +34,11 @@ namespace Enterprise_Web.Controllers
             var claim = claimIdentity.FindFirst(ClaimTypes.NameIdentifier);
             var userId = claim.Subject.Claims.ToList()[2];
             var route = Request.Path.Value;
+            var user = _userRepository.GetUserById(Int32.Parse(userId.Value));
+            if (user == null)
+            {
+                return StatusCode(400, "QAC not belong to Department");
+            }
             var listUser = _userRepository.GetAll(filter, Int32.Parse(userId.Value));
             var pagedResponse = PaginationHelper.CreatePagedReponse<UserDTO>(listUser.Item1, listUser.Item2, listUser.Item3, _uriService, route);
             return Ok(pagedResponse);

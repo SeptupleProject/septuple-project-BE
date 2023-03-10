@@ -31,7 +31,7 @@ namespace Enterprise_Web.Repository
 
             if(findUser.Role == "QAC")
             {
-                var listUserQAC = (from u in _dbContext.Users where u.Department.Id == findUser.Department.Id
+                var listUserQAC = (from u in _dbContext.Users.Include(x=>x.Department) where u.Department.Id == findUser.Department.Id
                                 select
                                 new UserDTO
                                 {
@@ -50,7 +50,7 @@ namespace Enterprise_Web.Repository
                 return (listUserQAC, validFilter, countUserQAC);
             }
 
-            var listUser = (from u in _dbContext.Users
+            var listUser = (from u in _dbContext.Users.Include(x => x.Department)
                             select
                             new UserDTO
                             {
@@ -89,6 +89,20 @@ namespace Enterprise_Web.Repository
                 return (filterUser, validFilter, countUser);
             }
 
+            if (!String.IsNullOrEmpty(filter.Role))
+            {
+                var filterUser = (from u in _dbContext.Users
+                                  where u.Role.Contains(filter.Role)
+                                  select new UserDTO
+                                  {
+                                      Id = u.Id,
+                                      Email = u.Email,
+                                      Role = u.Role,
+                                      DepartmentName = u.Department.Name == null ? "" : u.Department.Name
+                                  }).ToList();
+                return (filterUser, validFilter, countUser);
+            }
+
             var listUser = (from u in _dbContext.Users
                             select new UserDTO
                             {
@@ -104,6 +118,10 @@ namespace Enterprise_Web.Repository
         {
             var findUser = _dbContext.Users.Find(id);
             if (findUser == null)
+            {
+                return null;
+            }
+            if(findUser.Department == null)
             {
                 return null;
             }
