@@ -116,7 +116,7 @@ namespace Enterprise_Web.Repository
 
         public User GetUserById(int id)
         {
-            var findUser = _dbContext.Users.Find(id);
+            var findUser = _dbContext.Users.Include(x=> x.Department).FirstOrDefault(x => x.Id == id);
             if (findUser == null)
             {
                 return null;

@@ -64,7 +64,7 @@ namespace Enterprise_Web.Repository
                                 Id = d.Id,
                                 Name = d.Name,
                                 Users = d.Users.Count,
-                                ManagedBy = d.Users.SingleOrDefault(u => u.Role == "QAC").Email == null ? "": d.Users.SingleOrDefault(u => u.Role == "QACoordinator").Email
+                                ManagedBy = d.Users.SingleOrDefault(u => u.Role == "QAC").Email == null ? "": d.Users.SingleOrDefault(u => u.Role == "QAC").Email
                             })
                            .OrderByDescending(d => d.Id)
                            .Skip((validFilter.PageNumber - 1) * validFilter.PageSize)

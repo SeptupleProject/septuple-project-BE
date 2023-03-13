@@ -39,8 +39,8 @@ namespace Enterprise_Web.Controllers
             {
                 return StatusCode(400, "QAC not belong to Department");
             }
-            var listUser = _userRepository.GetAll(filter, Int32.Parse(userId.Value));
-            var pagedResponse = PaginationHelper.CreatePagedReponse<UserDTO>(listUser.Item1, listUser.Item2, listUser.Item3, _uriService, route);
+            var listUser = _userRepository.GetAll(filter, int.Parse(userId.Value));
+            var pagedResponse = PaginationHelper.CreatePagedReponse(listUser.Item1, listUser.Item2, listUser.Item3, _uriService, route);
             return Ok(pagedResponse);
         }
 
