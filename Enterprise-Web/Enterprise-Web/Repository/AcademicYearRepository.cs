@@ -54,11 +54,20 @@ namespace Enterprise_Web.Repository
             return findAcade;
         }
 
-        public (List<AcademicYear>, PaginationFilter, int) GetAll(PaginationFilter filter)
+        public (List<AcademicYearDTO>, PaginationFilter, int) GetAll(PaginationFilter filter)
         {
             var validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize, filter.Search, filter.Role);
 
-            var listAcade = (from a in _dbContext.AcademicYears select a)
+            var listAcade = (from a in _dbContext.AcademicYears
+                             select
+                            new AcademicYearDTO
+                            {
+                                Id = a.Id,
+                                Name = a.Name,
+                                StartDate = a.StartDate,
+                                EndDate = a.EndDate,
+                                IdeaDeadline = a.IdeaDeadline == null ? null : a.IdeaDeadline,
+                            })
                            .OrderByDescending(x => x.Id)
                            .Skip((validFilter.PageNumber - 1) * validFilter.PageSize)
                            .Take(validFilter.PageSize)

@@ -13,7 +13,7 @@ using System.Security.Claims;
 
 namespace Enterprise_Web.Controllers
 {
-    [Authorize(Roles ="Admin,QAM")]
+    //[Authorize(Roles ="Admin,QAM")]
     [Route("api/[controller]")]
     [ApiController]
     public class AcademicYearsController : ControllerBase
@@ -34,7 +34,7 @@ namespace Enterprise_Web.Controllers
         {
             var route = Request.Path.Value;
             var listAcade = _academicYearRepository.GetAll(filter);
-            var pagedResponse = PaginationHelper.CreatePagedReponse<AcademicYear>(listAcade.Item1, listAcade.Item2, listAcade.Item3, _uriService, route);
+            var pagedResponse = PaginationHelper.CreatePagedReponse(listAcade.Item1, listAcade.Item2, listAcade.Item3, _uriService, route);
             return Ok(pagedResponse);
         }
 
