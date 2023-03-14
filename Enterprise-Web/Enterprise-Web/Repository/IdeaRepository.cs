@@ -56,7 +56,9 @@ namespace Enterprise_Web.Repository
                                      CreatedBy = idea.CreatedBy,
                                      Like = idea.Reactions.Count(x => x.Like == true),
                                      DisLike = idea.Reactions.Count(x => x.Like == false),
-                                     Comments = idea.Comments.Count()
+                                     Comments = idea.Comments.Count(),
+                                     IsAnonymous = idea.IsAnonymos,
+                                     Views = idea.Views
                                  })
                                .OrderByDescending(x => x.Id)
                                .Skip((validFilter.PageNumber - 1) * validFilter.PageSize)
@@ -132,6 +134,8 @@ namespace Enterprise_Web.Repository
                 }
             }
 
+            var acadYearId = _dbContext.AcademicYears.OrderByDescending(x => x.StartDate).Select(x => x.Id).First();
+
             var newIdea = new Idea()
             {
                 Title = idea.Title,
@@ -139,7 +143,7 @@ namespace Enterprise_Web.Repository
                 Views = 0,
                 Image = image,
                 IsAnonymos = idea.IsAnonymos,
-                AcademicYearId = idea.AcademicYearId,
+                AcademicYearId = acadYearId,
                 CategoryId = idea.CategoryId,
                 UserId = userId,
                 CreatedBy = userEmail,

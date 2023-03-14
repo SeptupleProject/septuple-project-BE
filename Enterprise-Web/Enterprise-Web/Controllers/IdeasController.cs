@@ -13,7 +13,7 @@ using System.Security.Claims;
 
 namespace Enterprise_Web.Controllers
 {
-    [Authorize]
+    //[Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class IdeasController : ControllerBase
