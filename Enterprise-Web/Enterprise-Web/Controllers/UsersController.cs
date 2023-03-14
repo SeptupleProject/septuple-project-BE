@@ -35,7 +35,7 @@ namespace Enterprise_Web.Controllers
             var userId = claim.Subject.Claims.ToList()[2];
             var route = Request.Path.Value;
             var user = _userRepository.GetUserById(Int32.Parse(userId.Value));
-            if (user == null)
+            if (user == null && user?.Role == "QAC")
             {
                 return StatusCode(400, "QAC not belong to Department");
             }

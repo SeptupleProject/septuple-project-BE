@@ -121,10 +121,6 @@ namespace Enterprise_Web.Repository
             {
                 return null;
             }
-            if(findUser.Department == null)
-            {
-                return null;
-            }
             return findUser;
         }
 

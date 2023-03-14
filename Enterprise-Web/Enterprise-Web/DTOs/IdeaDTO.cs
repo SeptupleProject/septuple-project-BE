@@ -14,5 +14,7 @@ namespace Enterprise_Web.DTOs
         public int Like { get; set; }
         public int DisLike { get; set; }
         public int Comments { get; set; }
+        public int Views { get; set; }
+        public bool IsAnonymous { get; set; }
     }
 }
