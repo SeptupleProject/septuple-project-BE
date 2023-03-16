@@ -310,12 +310,12 @@ namespace Enterprise_Web.Repository
             return Task.CompletedTask;
         }
 
-        public async Task IcrementedView(Idea idea)
+        public async Task IcrementedView(int id)
         {
-            var findIdeas = await _dbContext.Ideas.FirstOrDefaultAsync(x => x.Id == idea.Id);
+            var findIdeas = await _dbContext.Ideas.FirstOrDefaultAsync(x => x.Id == id);
             if (findIdeas != null)
             {
-                findIdeas.Views = idea.Views + 1;
+                findIdeas.Views += 1;
             }
             _dbContext.Update(findIdeas);
             await _dbContext.SaveChangesAsync();

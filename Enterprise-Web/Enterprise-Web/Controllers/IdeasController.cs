@@ -95,15 +95,10 @@ namespace Enterprise_Web.Controllers
         }
 
         [HttpPut("incrementview/{id}")]
-        public async Task<IActionResult> IncrementView([FromForm] Idea idea, int id)
+        public async Task<IActionResult> IncrementView(int id)
         {
-            if (id != idea.Id)
-            {
-                return BadRequest("Ideas Not found");
-            }
-            await _ideaRepository.IcrementedView(idea);
-
-            return Ok(idea);
+            await _ideaRepository.IcrementedView(id);
+            return Ok(id);
         }
 
         [HttpGet("mostLike")]
