@@ -82,83 +82,115 @@ namespace Enterprise_Web.Repository
 
         public async Task Create(Idea idea, int userId, string userEmail)
         {
-            var fileUpload = idea.File;
-            var name = fileUpload.FileName;
-            FileStream fileStream = null;
-            string image = "";
-            if (fileUpload.Length > 0)
+            if (idea.File != null)
             {
-                var path = Path.Combine(_env.ContentRootPath, "Images");
-
-                if (Directory.Exists(path))
+                var fileUpload = idea.File;
+                var name = fileUpload.FileName;
+                FileStream fileStream = null;
+                string image = "";
+                if (fileUpload.Length > 0)
                 {
-                    using (fileStream = new FileStream(Path.Combine(path, name), FileMode.Create))
+                    var path = Path.Combine(_env.ContentRootPath, "Images");
+
+                    if (Directory.Exists(path))
                     {
-                        await fileUpload.CopyToAsync(fileStream);
+                        using (fileStream = new FileStream(Path.Combine(path, name), FileMode.Create))
+                        {
+                            await fileUpload.CopyToAsync(fileStream);
+                        }
+                        fileStream = new FileStream(Path.Combine(path, name), FileMode.Open);
                     }
-                    fileStream = new FileStream(Path.Combine(path, name), FileMode.Open);
-                }
-                else
-                {
-                    Directory.CreateDirectory(path);
-                    using (fileStream = new FileStream(Path.Combine(path, name), FileMode.Create))
+                    else
                     {
-                        await fileUpload.CopyToAsync(fileStream);
+                        Directory.CreateDirectory(path);
+                        using (fileStream = new FileStream(Path.Combine(path, name), FileMode.Create))
+                        {
+                            await fileUpload.CopyToAsync(fileStream);
+                        }
+                    }
+
+                    var auth = new FirebaseAuthProvider(new FirebaseConfig(apiKey));
+                    var a = await auth.SignInWithEmailAndPasswordAsync(AuthEmail, AuthPassword);
+
+                    var cancel = new CancellationTokenSource();
+
+                    var task = new FirebaseStorage(
+                        Bucket,
+                        new FirebaseStorageOptions
+                        {
+                            AuthTokenAsyncFactory = () => Task.FromResult(a.FirebaseToken),
+                            ThrowOnCancel = true
+                        })
+                        .Child("images")
+                        .Child(name)
+                        .PutAsync(fileStream, cancel.Token);
+
+                    try
+                    {
+                        var link = await task;
+                        image = link;
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine($"Error:{e.Message}");
                     }
                 }
 
-                var auth = new FirebaseAuthProvider(new FirebaseConfig(apiKey));
-                var a = await auth.SignInWithEmailAndPasswordAsync(AuthEmail, AuthPassword);
+                var acadYearIds = _dbContext.AcademicYears.OrderByDescending(x => x.StartDate).Select(x => x.Id).First();
 
-                var cancel = new CancellationTokenSource();
-
-                var task = new FirebaseStorage(
-                    Bucket,
-                    new FirebaseStorageOptions
-                    {
-                        AuthTokenAsyncFactory = () => Task.FromResult(a.FirebaseToken),
-                        ThrowOnCancel = true
-                    })
-                    .Child("images")
-                    .Child(name)
-                    .PutAsync(fileStream, cancel.Token);
-
-                try
+                var newIdeas = new Idea()
                 {
-                    var link = await task;
-                    image = link;
-                }
-                catch (Exception e)
+                    Title = idea.Title,
+                    Content = idea.Content,
+                    Views = 0,
+                    Image = image,
+                    IsAnonymos = idea.IsAnonymos,
+                    AcademicYearId = acadYearIds,
+                    CategoryId = idea.CategoryId,
+                    UserId = userId,
+                    CreatedBy = userEmail,
+                    CreatedAt = DateTime.Now,
+                };
+
+                await _dbContext.AddAsync(newIdeas);
+                await _dbContext.SaveChangesAsync();
+
+                var newNotis = new NotificationViewModel()
                 {
-                    Console.WriteLine($"Error:{e.Message}");
-                }
+                    IdeaId = null,
+                    CreatedBy = userEmail
+                };
+                await _notificationRepository.CheckAndSend(newNotis);
             }
 
-            var acadYearId = _dbContext.AcademicYears.OrderByDescending(x => x.StartDate).Select(x => x.Id).First();
-
-            var newIdea = new Idea()
+            else
             {
-                Title = idea.Title,
-                Content = idea.Content,
-                Views = 0,
-                Image = image,
-                IsAnonymos = idea.IsAnonymos,
-                AcademicYearId = acadYearId,
-                CategoryId = idea.CategoryId,
-                UserId = userId,
-                CreatedBy = userEmail,
-                CreatedAt = DateTime.Now,
-            };
+                var acadYearId = _dbContext.AcademicYears.OrderByDescending(x => x.StartDate).Select(x => x.Id).First();
 
-            await _dbContext.AddAsync(newIdea);
-            await _dbContext.SaveChangesAsync();
+                var newIdea = new Idea()
+                {
+                    Title = idea.Title,
+                    Content = idea.Content,
+                    Views = 0,
+                    Image = "",
+                    IsAnonymos = idea.IsAnonymos,
+                    AcademicYearId = acadYearId,
+                    CategoryId = idea.CategoryId,
+                    UserId = userId,
+                    CreatedBy = userEmail,
+                    CreatedAt = DateTime.Now,
+                };
 
-            var newNoti = new NotificationViewModel()
-            {
-                IdeaId = null,
-                CreatedBy = userEmail
-            };
-            await _notificationRepository.CheckAndSend(newNoti);
+                await _dbContext.AddAsync(newIdea);
+                await _dbContext.SaveChangesAsync();
+
+                var newNoti = new NotificationViewModel()
+                {
+                    IdeaId = null,
+                    CreatedBy = userEmail
+                };
+                await _notificationRepository.CheckAndSend(newNoti);
+            }
         }
 
 
@@ -241,7 +273,7 @@ namespace Enterprise_Web.Repository
             var findImage = Directory.GetFiles(zipFile).ToList();
             var fileName = "Image.zip";
             string pathUser = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-            string tempOutput = Path.Combine(pathUser, $"Downloads\\{fileName}");
+            string tempOutput = Path.Combine(pathUser, $"Downloads\\{fileName}{DateTime.Now.ToFileTime()}");
 
             using (ZipOutputStream IzipOutputStream = new ZipOutputStream(System.IO.File.Create(tempOutput)))
             {
@@ -372,7 +404,7 @@ namespace Enterprise_Web.Repository
         public async Task<Reaction> LikeIdea(int userId, Idea idea)
         {
             var userReaction = _dbContext.Reactions.Where(i => (i.UserId == userId && i.IdeaId == idea.Id)).FirstOrDefault();
-            
+
             if (userReaction == null)
             {
                 var reactionToLike = new Reaction
@@ -397,12 +429,12 @@ namespace Enterprise_Web.Repository
             if (userReaction.Like == false)
             {
                 userReaction.Like = true;
-                _dbContext.Reactions.Update(userReaction); 
+                _dbContext.Reactions.Update(userReaction);
                 await _dbContext.SaveChangesAsync();
-                return userReaction; 
+                return userReaction;
             }
 
-            return userReaction; 
+            return userReaction;
         }
 
         public async Task<Reaction> DislikeIdea(int userId, Idea idea)
