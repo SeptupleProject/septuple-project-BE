@@ -21,13 +21,11 @@ namespace Enterprise_Web.Repository
             {
                 string subject = "NEW IDEA POSTED";
                 string htmlMessage = $"{notificationViewModel.CreatedBy} have just contributed a new idea. Let's go check it out!";
-                var qaEmails = _dbContext.Users.Where(q => q.Role == "QAM").Select(q => q.Email).ToList();
+                var qacEmail = _dbContext.Users.Where(q => q.Role == "QAC" && q.DepartmentId == notificationViewModel.DepartmentId).Select(q => q.Email).ToString();
+
                 var emailAddresses = new List<EmailAddress>();
-                foreach (var email in qaEmails)
-                {
-                    var qaEmailAdd = new EmailAddress(email, "QA Manager");
-                    emailAddresses.Add(qaEmailAdd);
-                }
+                var qacEmailAdd = new EmailAddress(qacEmail, "QA Coordinator");
+                emailAddresses.Add(qacEmailAdd);
 
                 await _emailSender.SendEmailAsync(emailAddresses, subject, htmlMessage);
             }
@@ -39,8 +37,8 @@ namespace Enterprise_Web.Repository
                                   join c in _dbContext.Comments on i.Id equals c.IdeaId
                                   where c.IdeaId == notificationViewModel.IdeaId
                                   select i.CreatedBy).FirstOrDefault();
-                var emailAddresses = new List<EmailAddress>();
 
+                var emailAddresses = new List<EmailAddress>();
                 var staffEmailAdd = new EmailAddress(staffEmail, "Staff");
                 emailAddresses.Add(staffEmailAdd);
 

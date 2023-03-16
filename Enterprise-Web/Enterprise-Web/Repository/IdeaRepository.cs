@@ -85,7 +85,7 @@ namespace Enterprise_Web.Repository
             if (idea.File != null)
             {
                 var fileUpload = idea.File;
-                var name = fileUpload.FileName;
+                var name = fileUpload.FileName + DateTime.Now.ToFileTime();
                 FileStream fileStream = null;
                 string image = "";
                 if (fileUpload.Length > 0)
@@ -184,10 +184,13 @@ namespace Enterprise_Web.Repository
                 await _dbContext.AddAsync(newIdea);
                 await _dbContext.SaveChangesAsync();
 
+                var foundUser = _dbContext.Users.FirstOrDefault(x => x.Id == userId);
+
                 var newNoti = new NotificationViewModel()
                 {
                     IdeaId = null,
-                    CreatedBy = userEmail
+                    CreatedBy = userEmail,
+                    DepartmentId = foundUser?.DepartmentId
                 };
                 await _notificationRepository.CheckAndSend(newNoti);
             }
