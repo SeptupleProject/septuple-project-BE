@@ -11,7 +11,7 @@ namespace EnterpriseWeb.Configuration
             builder.ToTable("Comments");
             builder.HasKey(x => x.Id);
             builder.Property(x => x.Id).UseIdentityColumn();
-            builder.Property(x => x.Content).IsRequired(true).HasMaxLength(100);
+            builder.Property(x => x.Content).IsRequired(true).HasMaxLength(1000);
             builder.Property(x => x.IsAnonymous).IsRequired(true);
             builder.Property(x => x.CreatedBy).IsRequired(false).HasMaxLength(50);
             builder.Property(x => x.CreatedAt).IsRequired(true);

@@ -14,6 +14,9 @@ namespace EnterpriseWeb.Configuration
             builder.Property(x => x.Email).IsRequired(true).HasMaxLength(50);
             builder.Property(x => x.Password).IsRequired(true).HasMaxLength(200);
             builder.Property(x => x.Role).IsRequired(true).HasMaxLength(100);
+
+            builder.HasOne(x => x.Department).WithMany(x => x.Users)
+                .HasForeignKey(x => x.DepartmentId).OnDelete(DeleteBehavior.Cascade);
         }
     }
 }
