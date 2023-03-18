@@ -38,7 +38,7 @@ namespace Enterprise_Web.Repository
                                 {
                                     Id = c.Id,
                                     Name = c.Name,
-                                    NumOfIdeas = 0
+                                    NumOfIdeas = c.Ideas.Count()
                                 })
                            .OrderByDescending(x => x.Id)
                            .Skip((validFilter.PageNumber - 1) * validFilter.PageSize)

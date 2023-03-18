@@ -16,10 +16,10 @@ namespace Enterprise_Web.Repository.IRepository
         List<IdeaViewModel> GetIdeasToDownload();
         Task DownloadIdeas(List<IdeaViewModel> ideaViewModels);
         Task IcrementedView(int id);
-        Task<List<Idea>> MostLikeIdea();
-        Task<List<Idea>> MostDislikeIdea();
-        Task<List<Idea>> MostCommentIdea();
-        Task<List<Idea>> MostViewsIdea();
+        Task<List<IdeaDTO>> MostLikeIdea();
+        Task<List<IdeaDTO>> MostDislikeIdea();
+        Task<List<IdeaDTO>> MostCommentIdea();
+        Task<List<IdeaDTO>> MostViewsIdea();
         Task<Reaction> LikeIdea(int userId, Idea idea); 
         Task<Reaction> DislikeIdea(int userId, Idea idea); 
         Task<List<IdeasCmtsPerDeptDTO>> IdeasCmtsPerDept();

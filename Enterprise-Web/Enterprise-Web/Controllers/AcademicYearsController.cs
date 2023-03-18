@@ -49,6 +49,17 @@ namespace Enterprise_Web.Controllers
             return Ok(acade);
         }
 
+        [HttpGet("current")]
+        public async Task<IActionResult> GetCurrnetAcade()
+        {
+            var acade = _academicYearRepository.GetCurrentAcade();
+            if (acade == null)
+            {
+                return StatusCode(400, "Acade does not exist");
+            }
+            return Ok(acade);
+        }
+
         #endregion
 
         #region Post API
