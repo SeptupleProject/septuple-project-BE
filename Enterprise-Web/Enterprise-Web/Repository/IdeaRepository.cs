@@ -19,6 +19,7 @@ using Microsoft.AspNetCore.JsonPatch.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System.Linq;
 using System.Text.RegularExpressions;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Enterprise_Web.Repository
 {
@@ -85,7 +86,7 @@ namespace Enterprise_Web.Repository
             if (idea.File != null)
             {
                 var fileUpload = idea.File;
-                var name = fileUpload.FileName + DateTime.Now.ToFileTime();
+                var name = DateTime.Now.ToFileTime() + fileUpload.FileName;
                 FileStream fileStream = null;
                 string image = "";
                 if (fileUpload.Length > 0)
@@ -199,73 +200,91 @@ namespace Enterprise_Web.Repository
 
         public async Task Update(Idea idea)
         {
-            var fileUpload = idea.File;
-            var name = fileUpload.FileName;
-            FileStream fileStream = null;
-            string image = "";
-            if (fileUpload.Length > 0)
+            if(idea.File != null)
             {
-                var path = Path.Combine(_env.ContentRootPath, "Images");
-
-                if (Directory.Exists(path))
+                var fileUpload = idea.File;
+                var name = DateTime.Now.ToFileTime() + fileUpload.FileName;
+                FileStream fileStream = null;
+                string image = "";
+                if (fileUpload.Length > 0)
                 {
-                    using (fileStream = new FileStream(Path.Combine(path, name), FileMode.Create))
+                    var path = Path.Combine(_env.ContentRootPath, "Images");
+
+                    if (Directory.Exists(path))
                     {
-                        await fileUpload.CopyToAsync(fileStream);
+                        using (fileStream = new FileStream(Path.Combine(path, name), FileMode.Create))
+                        {
+                            await fileUpload.CopyToAsync(fileStream);
+                        }
+                        fileStream = new FileStream(Path.Combine(path, name), FileMode.Open);
                     }
-                    fileStream = new FileStream(Path.Combine(path, name), FileMode.Open);
-                }
-                else
-                {
-                    Directory.CreateDirectory(path);
-                    using (fileStream = new FileStream(Path.Combine(path, name), FileMode.Create))
+                    else
                     {
-                        await fileUpload.CopyToAsync(fileStream);
+                        Directory.CreateDirectory(path);
+                        using (fileStream = new FileStream(Path.Combine(path, name), FileMode.Create))
+                        {
+                            await fileUpload.CopyToAsync(fileStream);
+                        }
+                    }
+
+                    var auth = new FirebaseAuthProvider(new FirebaseConfig(apiKey));
+                    var a = await auth.SignInWithEmailAndPasswordAsync(AuthEmail, AuthPassword);
+
+                    var cancel = new CancellationTokenSource();
+
+                    var task = new FirebaseStorage(
+                        Bucket,
+                        new FirebaseStorageOptions
+                        {
+                            AuthTokenAsyncFactory = () => Task.FromResult(a.FirebaseToken),
+                            ThrowOnCancel = true
+                        })
+                        .Child("images")
+                        .Child(name)
+                        .PutAsync(fileStream, cancel.Token);
+
+                    try
+                    {
+                        var link = await task;
+                        image = link;
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine($"Error:{e.Message}");
                     }
                 }
 
-                var auth = new FirebaseAuthProvider(new FirebaseConfig(apiKey));
-                var a = await auth.SignInWithEmailAndPasswordAsync(AuthEmail, AuthPassword);
-
-                var cancel = new CancellationTokenSource();
-
-                var task = new FirebaseStorage(
-                    Bucket,
-                    new FirebaseStorageOptions
-                    {
-                        AuthTokenAsyncFactory = () => Task.FromResult(a.FirebaseToken),
-                        ThrowOnCancel = true
-                    })
-                    .Child("images")
-                    .Child(name)
-                    .PutAsync(fileStream, cancel.Token);
-
-                try
+                var findIdeas = await _dbContext.Ideas.FirstOrDefaultAsync(x => x.Id == idea.Id);
+                if (findIdeas != null)
                 {
-                    var link = await task;
-                    image = link;
+                    findIdeas.Title = idea.Title;
+                    findIdeas.Content = idea.Content;
+                    findIdeas.Image = image;
+                    findIdeas.IsAnonymos = idea.IsAnonymos;
                 }
-                catch (Exception e)
-                {
-                    Console.WriteLine($"Error:{e.Message}");
-                }
+                _dbContext.Update(findIdeas);
+                await _dbContext.SaveChangesAsync();
             }
-
-            var findIdeas = await _dbContext.Ideas.FirstOrDefaultAsync(x => x.Id == idea.Id);
-            if (findIdeas != null)
+            else
             {
-                findIdeas.Title = idea.Title;
-                findIdeas.Content = idea.Content;
-                findIdeas.Image = image;
-                findIdeas.IsAnonymos = idea.IsAnonymos;
-                findIdeas.CategoryId = idea.CategoryId;
+                var findIdea = await _dbContext.Ideas.FirstOrDefaultAsync(x => x.Id == idea.Id);
+                if (findIdea != null)
+                {
+                    findIdea.Title = idea.Title;
+                    findIdea.Content = idea.Content;
+                    findIdea.IsAnonymos = idea.IsAnonymos;
+                }
+                _dbContext.Update(findIdea);
+                await _dbContext.SaveChangesAsync();
             }
-            _dbContext.Update(findIdeas);
-            await _dbContext.SaveChangesAsync();
         }
 
         public async Task Delete(int id)
         {
+            var findReaction = _dbContext.Reactions.Where(x => x.IdeaId == id).ToList();
+            _dbContext.RemoveRange(findReaction);
+            await _dbContext.SaveChangesAsync();
+
             var ideaDelete = await _dbContext.Ideas.FindAsync(id);
             _dbContext.Remove(ideaDelete);
             await _dbContext.SaveChangesAsync();
@@ -356,7 +375,7 @@ namespace Enterprise_Web.Repository
             await _dbContext.SaveChangesAsync();
         }
 
-        public async Task<List<Idea>> MostLikeIdea()
+        public async Task<List<IdeaDTO>> MostLikeIdea()
         {
             var findIdeaId = (from r in _dbContext.Reactions
                               where r.Like == true
@@ -365,13 +384,28 @@ namespace Enterprise_Web.Repository
                               {
                                   Id = GroupIdea.Key
                               }).ToArray();
-            var mostLikeIdea = _dbContext.Ideas.Where(x => findIdeaId.Contains(x)).OrderByDescending(x => x.Reactions.Count(x => x.Like == true)).Take(3).ToList();
+
+            var mostLikeIdea = _dbContext.Ideas.Include(x => x.Reactions).Where(x => findIdeaId.Contains(x)).OrderByDescending(x => x.Reactions.Count(x => x.Like == true))
+                                .Select(x=> new IdeaDTO
+                                {
+                                    Id = x.Id,
+                                    Title = x.Title,
+                                    Content = x.Content,
+                                    CategoryName = x.Category.Name,
+                                    CreatedBy = x.CreatedBy,
+                                    Image = x.Image,
+                                    Like = x.Reactions.Count(x=>x.Like == true),
+                                    DisLike = x.Reactions.Count(x => x.Like == false),
+                                    Comments = x.Comments.Count(),
+                                    Views = x.Views,
+                                    IsAnonymous = x.IsAnonymos
+                                }).Take(3).ToList();
 
             return mostLikeIdea;
 
         }
 
-        public async Task<List<Idea>> MostDislikeIdea()
+        public async Task<List<IdeaDTO>> MostDislikeIdea()
         {
             var findIdeaId = (from r in _dbContext.Reactions
                               where r.Like == false
@@ -380,25 +414,69 @@ namespace Enterprise_Web.Repository
                               {
                                   Id = GroupIdea.Key
                               }).ToArray();
-            var mostDislikeIdea = _dbContext.Ideas.Where(x => findIdeaId.Contains(x)).OrderByDescending(x => x.Reactions.Count(x => x.Like == false)).Take(3).ToList();
+
+            var mostDislikeIdea = _dbContext.Ideas.Include(x=>x.Reactions).Where(x => findIdeaId.Contains(x)).OrderByDescending(x => x.Reactions.Count(x => x.Like == false))
+                                  .Select(x => new IdeaDTO
+                                  {
+                                      Id = x.Id,
+                                      Title = x.Title,
+                                      Content = x.Content,
+                                      CategoryName = x.Category.Name,
+                                      CreatedBy = x.CreatedBy,
+                                      Image = x.Image,
+                                      Like = x.Reactions.Count(x => x.Like == true),
+                                      DisLike = x.Reactions.Count(x => x.Like == false),
+                                      Comments = x.Comments.Count(),
+                                      Views = x.Views,
+                                      IsAnonymous = x.IsAnonymos
+                                  }).Take(3).ToList();
+
             return mostDislikeIdea;
         }
 
-        public async Task<List<Idea>> MostCommentIdea()
+        public async Task<List<IdeaDTO>> MostCommentIdea()
         {
             var findIdeaId = _dbContext.Comments
                                 .GroupBy(r => r.IdeaId)
                                 .Select(x => x.Key)
                                 .ToArray();
 
-            var mostCommentIdea = _dbContext.Ideas.Where(x => findIdeaId.Contains(x.Id)).OrderByDescending(x => x.Comments.Count()).Take(3).ToList();
+            var mostCommentIdea = _dbContext.Ideas.Include(x => x.Comments).Where(x => findIdeaId.Contains(x.Id)).OrderByDescending(x => x.Comments.Count())
+                                  .Select(x => new IdeaDTO
+                                  {
+                                      Id = x.Id,
+                                      Title = x.Title,
+                                      Content = x.Content,
+                                      CategoryName = x.Category.Name,
+                                      CreatedBy = x.CreatedBy,
+                                      Image = x.Image,
+                                      Like = x.Reactions.Count(x => x.Like == true),
+                                      DisLike = x.Reactions.Count(x => x.Like == false),
+                                      Comments = x.Comments.Count(),
+                                      Views = x.Views,
+                                      IsAnonymous = x.IsAnonymos
+                                  }).Take(3).ToList();
 
             return mostCommentIdea;
         }
 
-        public async Task<List<Idea>> MostViewsIdea()
+        public async Task<List<IdeaDTO>> MostViewsIdea()
         {
-            var mostViewsIdea = _dbContext.Ideas.OrderByDescending(i => i.Views).Take(3).ToList();
+            var mostViewsIdea =  _dbContext.Ideas.OrderByDescending(i => i.Views)
+                                 .Select(x => new IdeaDTO
+                                 {
+                                     Id = x.Id,
+                                     Title = x.Title,
+                                     Content = x.Content,
+                                     CategoryName = x.Category.Name,
+                                     CreatedBy = x.CreatedBy,
+                                     Image = x.Image,
+                                     Like = x.Reactions.Count(x => x.Like == true),
+                                     DisLike = x.Reactions.Count(x => x.Like == false),
+                                     Comments = x.Comments.Count(),
+                                     Views = x.Views,
+                                     IsAnonymous = x.IsAnonymos
+                                 }).Take(3).ToList();
 
             return mostViewsIdea;
         }

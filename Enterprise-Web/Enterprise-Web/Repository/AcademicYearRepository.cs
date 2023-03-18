@@ -3,7 +3,6 @@ using Enterprise_Web.Models;
 using Enterprise_Web.Pagination.Filter;
 using Enterprise_Web.Repository.IRepository;
 using EnterpriseWeb.Data;
-using EnterpriseWeb.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace Enterprise_Web.Repository
@@ -76,6 +75,22 @@ namespace Enterprise_Web.Repository
             var countAcade = (from u in _dbContext.AcademicYears select u).Count();
 
             return (listAcade, validFilter, countAcade);
+        }
+
+        public AcademicYearDTO GetCurrentAcade()
+        {
+            var currentAcade = (from a in _dbContext.AcademicYears
+                               where a.StartDate.Value.Year == DateTime.Today.Year && a.EndDate.Value.Year == DateTime.Today.Year
+                               select new AcademicYearDTO
+                               {
+                                   Id = a.Id,
+                                   Name = a.Name,
+                                   StartDate = a.StartDate,
+                                   EndDate= a.EndDate,
+                                   IdeaDeadline= a.IdeaDeadline == null ? null : a.IdeaDeadline,
+                               }).FirstOrDefault();
+                
+            return currentAcade;
         }
 
         public async Task Update(AcademicYear academicYear)
