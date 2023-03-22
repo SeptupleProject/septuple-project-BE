@@ -1,6 +1,7 @@
 ﻿using Enterprise_Web.DTOs;
 using Enterprise_Web.Models;
 using Enterprise_Web.Pagination.Filter;
+using Enterprise_Web.ViewModels;
 using EnterpriseWeb.Models;
 
 namespace Enterprise_Web.Repository.IRepository
@@ -11,6 +12,7 @@ namespace Enterprise_Web.Repository.IRepository
         Comment GetById(int id);
         Task Create(Comment comment, int userId, string userEmail);
         Task Update(Comment comment);
-        Task Delete(int id); 
+        Task Delete(int id);
+        List<CommentViewModel> GetCommentsToDownload();
     }
 }

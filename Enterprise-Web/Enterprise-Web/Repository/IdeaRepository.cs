@@ -20,6 +20,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System.Linq;
 using System.Text.RegularExpressions;
 using static System.Net.Mime.MediaTypeNames;
+using System.Text;
+using ZipFile = System.IO.Compression.ZipFile;
+using System.IO;
 
 namespace Enterprise_Web.Repository
 {
@@ -295,7 +298,7 @@ namespace Enterprise_Web.Repository
             var findImage = Directory.GetFiles(zipFile).ToList();
             var fileName = "Image.zip";
             string pathUser = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-            string tempOutput = Path.Combine(pathUser, $"Downloads\\{fileName}{DateTime.Now.ToFileTime()}");
+            string tempOutput = Path.Combine(pathUser, $"Downloads\\{fileName}");
 
             using (ZipOutputStream IzipOutputStream = new ZipOutputStream(System.IO.File.Create(tempOutput)))
             {
@@ -348,19 +351,40 @@ namespace Enterprise_Web.Repository
             return ideaViewModels;
         }
 
-        public Task DownloadIdeas(List<IdeaViewModel> ideaViewModels)
+        public Task DownloadIdeas(List<IdeaViewModel> ideaViewModels, List<CommentViewModel> commentViewModels)
         {
             string pathUser = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-            string csvPath = Path.Combine(pathUser, $"Downloads\\ideas-{DateTime.Now.ToFileTime()}.csv");
+            string tempOutput = Path.Combine(pathUser, $"Downloads\\ideas_comments{DateTime.Now.ToFileTime()}.zip");
 
-            using (var streamWriter = new StreamWriter(csvPath))
+            using (var zf = ZipFile.Open(tempOutput, ZipArchiveMode.Create))
             {
-                using (var csvWriter = new CsvWriter(streamWriter, CultureInfo.InvariantCulture))
+                var ze1 = zf.CreateEntry("ideas.csv");
+                using (var zs = ze1.Open())
                 {
-                    csvWriter.Context.RegisterClassMap<IdeasClassMap>();
-                    csvWriter.WriteRecords(ideaViewModels);
+                    using (var writ = new StreamWriter(zs, Encoding.UTF8))
+                    {
+                        using (var csvWriter = new CsvWriter(writ, CultureInfo.InvariantCulture))
+                        {
+                            csvWriter.Context.RegisterClassMap<IdeasClassMap>();
+                            csvWriter.WriteRecords(ideaViewModels);
+                        }                   
+                    }
+                }
+
+                var ze2 = zf.CreateEntry("comments.csv");
+                using (var zs = ze2.Open())
+                {
+                    using (var writ = new StreamWriter(zs, Encoding.UTF8))
+                    {
+                        using (var csvWriter = new CsvWriter(writ, CultureInfo.InvariantCulture))
+                        {
+                            csvWriter.Context.RegisterClassMap<CommentsClassMap>();
+                            csvWriter.WriteRecords(commentViewModels);
+                        }
+                    }
                 }
             }
+
             return Task.CompletedTask;
         }
 

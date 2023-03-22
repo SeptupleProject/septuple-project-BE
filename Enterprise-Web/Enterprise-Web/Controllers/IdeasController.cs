@@ -19,11 +19,13 @@ namespace Enterprise_Web.Controllers
     public class IdeasController : ControllerBase
     {
         private readonly IIdeaRepository _ideaRepository;
+        private readonly ICommentRepository _commentRepository;
         private readonly IUriService _uriService;
 
-        public IdeasController(IIdeaRepository ideaRepository, IUriService uriService)
+        public IdeasController(IIdeaRepository ideaRepository, ICommentRepository commentRepository, IUriService uriService)
         {
             _ideaRepository = ideaRepository;
+            _commentRepository = commentRepository;
             _uriService = uriService;
         }
 
@@ -54,7 +56,8 @@ namespace Enterprise_Web.Controllers
         public IActionResult DownloadCsv()
         {
             var ideaViewModels = _ideaRepository.GetIdeasToDownload();
-            _ideaRepository.DownloadIdeas(ideaViewModels);
+            var commentViewModels = _commentRepository.GetCommentsToDownload();
+            _ideaRepository.DownloadIdeas(ideaViewModels, commentViewModels);
             return Ok(ideaViewModels);
         }
 
