@@ -14,7 +14,7 @@ namespace Enterprise_Web.Repository.IRepository
         Task Delete(int id);
         Task Download(string zipFile); 
         List<IdeaViewModel> GetIdeasToDownload();
-        Task DownloadIdeas(List<IdeaViewModel> ideaViewModels);
+        Task DownloadIdeas(List<IdeaViewModel> ideaViewModels, List<CommentViewModel> commentViewModels);
         Task IcrementedView(int id);
         Task<List<IdeaDTO>> MostLikeIdea();
         Task<List<IdeaDTO>> MostDislikeIdea();

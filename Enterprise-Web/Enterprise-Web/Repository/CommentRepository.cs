@@ -88,5 +88,24 @@ namespace Enterprise_Web.Repository
             _dbContext.Update(findComments);
             await _dbContext.SaveChangesAsync();
         }
+
+        public List<CommentViewModel> GetCommentsToDownload()
+        {
+            var comments = _dbContext.Comments.ToList();
+            var commentViewModels = new List<CommentViewModel>();
+            foreach (var comment in comments)
+            {
+                var commentViewModel = new CommentViewModel()
+                {
+                    Id = comment.Id,
+                    IdeaId = comment.IdeaId,
+                    Content = comment.Content,                 
+                    CreatedBy = comment.CreatedBy,
+                    CreatedAt = comment.CreatedAt,
+                };
+                commentViewModels.Add(commentViewModel);
+            }
+            return commentViewModels;
+        }
     }
 }
