@@ -13,7 +13,7 @@ using System.Security.Claims;
 
 namespace Enterprise_Web.Controllers
 {
-    [Authorize(Roles ="Admin,QAM")]
+    [Authorize(Roles ="Admin,QAM,Staff")]
     [Route("api/[controller]")]
     [ApiController]
     public class AcademicYearsController : ControllerBase
