@@ -18,7 +18,7 @@ namespace Enterprise_Web.Services
             var client = new SendGridClient(SendGridSecret);
             var msg = new SendGridMessage()
             {
-                From = new EmailAddress("doankha87720@gmail.com", "Idealli"),
+                From = new EmailAddress("namntkgcd201381@fpt.edu.vn", "Idealli"),
                 Subject = subject,
                 HtmlContent = htmlMessage,
                 Personalizations = new List<Personalization>
